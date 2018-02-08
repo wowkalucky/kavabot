@@ -1,0 +1,24 @@
+{
+  "options": {
+    "quorum": 5,
+    "agendaScope": 3,
+    "votesCount": 2,
+    "secretMode": false
+  },
+  "discussion": {
+    "id": "number",
+    "day": "Friday",
+    "time": "13:00",
+    "place": "Basement Hall",
+    "status": ["idle", "active", "closed"],
+    "agenda": ["topic1", "topic2", "topic3"]
+  },
+  "topic": {
+    "id": "hash",
+    "title": "text",
+    "description": "text",
+    "status": ["idle", "active", "archived"]
+  },
+  "archive": ["archived topics"],
+  "backlog": ["idle topics"]
+}
