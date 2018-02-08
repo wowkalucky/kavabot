@@ -1,21 +1,46 @@
 # Create Slack app to provide Friday's LEAN COFFEE functionality to RaccoonGang #lectorium Slack channel.
 
-## Tech stack: python | ?
+
+## Distribution:
+- internal integration;
+- shared app (SSL);
+
+## Tech stack: alternatives
+- node! | simple DB | [node-slack-sdk](https://github.com/slackapi/node-slack-sdk)
+- python? | ? | slackclient
 
 ## Architecture:
 
+### Slack APIs:
+- Events API - the new one: subscription model (user activities);
+- RealTimeMessages API - full activities stream! (web-sockets);
+- Web API (events, messages, channels, user groups, files, attachments, reactions);
+    - buttons;
+    - attachments...
+
+### Tools:
+- message buttons;
+- incoming webhooks;
+- slash commands;
+- permalinks;
+- message threads;
+
 ### Roles:
-- Administrator;
-- Moderator;
-- Participant;
+- Administrator:
+    - full control;
+- Moderator:
+    - organization activities;
+- Participant:
+    - passive user;
 
 ### General defaults:
-- send notifications: true;
 - quorum: 5;
-- secret_voting: true;
 - votes_count: 2;
 - agenda_scope: 3;
+
 - topic_categories: [70, 40]
+- secret_voting: true;
+- send notifications: true;
 
 ### Glossary
 - Discussion - Lean Coffee meeting (date, participants[count])
@@ -36,7 +61,7 @@ Flow (Status):
 ### Features:
 1) Creating (removing, closing) Discussion;
 
-    - createDiscussion();
+    - initDiscussion();
     - closeDiscussion();
 
 2) Adding (editing, removing) Topics to Discussion;
