@@ -1,0 +1,28 @@
+{
+  "name": "leancoffee",
+  "version": "0.1.0",
+  "description": "leancoffee slack application",
+  "main": "kavabot.js",
+  "dependencies": {
+    "@slack/client": "^3.16.0",
+    "dotenv": "^5.0.0",
+    "express": "^4.16.2",
+    "request": "^2.83.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org/wowkalucky/leancoffee.git"
+  },
+  "keywords": [
+    "lean",
+    "coffee",
+    "slack"
+  ],
+  "author": "wowkalucky",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/wowkalucky/leancoffee#readme"
+}
