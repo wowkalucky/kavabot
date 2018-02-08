@@ -1,15 +1,21 @@
 # Create Slack app to provide Friday's LEAN COFFEE functionality to RaccoonGang #lectorium Slack channel.
 
+## Initial decisions:
 
-## Distribution:
+### Distribution:
 - internal integration;
 - shared app (SSL);
 
-## Tech stack: alternatives
+### Tech stack: alternatives
 - node! | simple DB | [node-slack-sdk](https://github.com/slackapi/node-slack-sdk)
 - python? | ? | slackclient
 
-## Architecture:
+### Tools:
+- message buttons;
+- incoming webhooks;
+- slash commands;
+- permalinks;
+- message threads;
 
 ### Slack APIs:
 - Events API - the new one: subscription model (user activities);
@@ -18,12 +24,18 @@
     - buttons;
     - attachments...
 
-### Tools:
-- message buttons;
-- incoming webhooks;
-- slash commands;
-- permalinks;
-- message threads;
+## Architecture:
+
+### Glossary
+- Discussion - Lean Coffee meeting (date, participants count)
+- Topic - question to discuss;
+	- title;
+	- description (1-2 sentenses);
+	- category (hot=70%+, cool=40%+);
+- Vote - ability of participants to vote for interested Topic (vote_count=2, secret_mode?)
+- Archive - already discussed Topics (date, results?);
+- Backlog - cumulative not discussed Topics from previous Discussions;
+- Agenda - count of top-voted Topics (agenda_scope);
 
 ### Roles:
 - Administrator:
@@ -38,25 +50,15 @@
 - votes_count: 2;
 - agenda_scope: 3;
 
-- topic_categories: [70, 40]
+- topic_categories: [cool, hot]
 - secret_voting: true;
-- send notifications: true;
+- secret_proposal: false;
+- send_notifications: true;
 
-### Glossary
-- Discussion - Lean Coffee meeting (date, participants[count])
-- Topic - question to discuss;
-	- title;
-	- description (1-2 sentenses);
-	- category (hot-70%+, interesting-40%+);
-- Vote - ability of participants to vote for interested Topic (vote_count=2, secret_mode?)
-- Archive - already discussed Topics (date, results?);
-- Backlog - cumulative not discussed Topics from previous Discussions;
-- Agenda - count of top-voted Topics (agenda_scope);
-
-Flow (Status):
-   TODO - to discuss (Backlog);
-   IN PROGRESS - in discussing;
-   DONE - discussed (Archive);
+### Flow (Status):
+- TODO - to discuss (Backlog);
+- IN PROGRESS - in discussing;
+- DONE - discussed (Archive);
 
 ### Features:
 1) Creating (removing, closing) Discussion;
