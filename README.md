@@ -7,13 +7,14 @@
 - shared app (SSL);
 
 ### Tech stack: alternatives
-- node! | simple DB | [node-slack-sdk](https://github.com/slackapi/node-slack-sdk)
-- python? | ? | slackclient
+- node! | NEDB | [node-slack-sdk](https://github.com/slackapi/node-slack-sdk)
+- python? | SQL ? | slackclient
 
 ### Tools:
 - message buttons;
 - incoming webhooks;
 - slash commands;
+- dialogs;
 - permalinks;
 - message threads;
 
