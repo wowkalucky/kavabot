@@ -20,7 +20,7 @@ const PORT=8822;
 const app = express();
 app.use(bodyParser.json());                        // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({extended: true}));  // to support URL-encoded bodies
-app.use('/slack/actions', slackMessages.expressMiddleware());
+app.use('/intercom', slackMessages.expressMiddleware());
 
 // Lets start our server
 app.listen(PORT, function () {
@@ -72,23 +72,30 @@ app.get('/oauth', function(req, res) {
     }
 });
 
-// Discussion initialization:
+// Discussion initialization slash-command:
 app.post(URLS.lcInit, function(req, res) {
-  //  { token: '8wIvXEnO3Dp0VB1yd2kljBOP',
-  // team_id: 'T6K8HJZQW',
-  // team_domain: 'slatyne',
-  // channel_id: 'C94H16BPX',
-  // channel_name: 'botex',
-  // user_id: 'U6J9K847M',
-  // user_name: 'wowkalucky',
-  // command: '/lc-init',
-  // text: '',
-  // response_url: 'https://hooks.slack.com/commands/T6K8HJZQW/313262914194/TCHYINQKmxwHMTUuJ2czz92g',
-  // trigger_id: '313262914242.223289645846.a53afbfc5f63ea370b7c437127cbf8a1' }  //who, what, where, and when.
-    const responseUrl = req.body.response_url;
-    const triggerId = req.body.trigger_id;
+    console.log(req.body);
+    // BODY:
+    // { token: '8wIvXEnO3Dp0VB1yd2kljBOP',
+    //   team_id: 'T6K8HJZQW',
+    //   team_domain: 'slatyne',
+    //   channel_id: 'C94H16BPX',
+    //   channel_name: 'botex',
+    //   user_id: 'U6J9K847M',
+    //   user_name: 'wowkalucky',
+    //   command: '/lc-init',
+    //   text: '',
+    //   response_url: 'https://hooks.slack.com/commands/T6K8HJZQW/313486814977/6uHO5oycxjkA3bcjIqS2xt4g',
+    //   trigger_id: '315091880999.223289645846.0f1bc7d6b4ff7ab92897ed3f6914428b'
+    // }
 
-    // res.sendStatus(200);
+    const responseUrl = req.body.response_url;
+    const channelId = req.body.channel_id;
+    const userId = req.body.user_id;
+    const triggerId = req.body.trigger_id;
+    res.status(200).send({'text': 'Hurray! Initiating new discussion...'});
+
+
     console.log('New Discussion initialization...');
     const dialog = JSON.stringify({
         "callback_id": "init_discussion",
@@ -133,10 +140,50 @@ app.post(URLS.lcInit, function(req, res) {
             }
         ]
     });
-    web.dialog
-        .open(dialog, triggerId)
-        .then((res) => {
-            console.log('dialog.response', res.body);
-            initDiscussion();
-        });
+    web.dialog.open(dialog, triggerId);
+});
+
+
+// MESSAGES section:
+slackMessages.action('init_discussion', (payload) => {
+    console.log('payload', payload);
+    // PAYLOAD:
+    //{ type: 'dialog_submission',
+    //    submission:
+    //  { discussion_day: 'This Friday!',
+    //    discussion_time: '12:00',
+    //    discussion_place: 'Basement Hall' },
+    // callback_id: 'init_discussion',
+    // team: { id: 'T6K8HJZQW', domain: 'slatyne' },
+    // user: { id: 'U6J9K847M', name: 'wowkalucky' },
+    // channel: { id: 'C94H16BPX', name: 'botex' },
+    // action_ts: '1518475563.667618',
+    // token: '8wIvXEnO3Dp0VB1yd2kljBOP' }
+
+    initDiscussion();
+
+    // respond('message')
+    // Do some asynchronous work (returns a Promise)
+    // Call respond() with a JSON object that represents a replacement message
+    // .then(formatMessage)
+    // .then(respond)
+    // respond();
+    // Set `replace_original` to `false` if the message is not meant to replace the original.
+    // .catch((error) => respond({ text: error.message, replace_original: false }));
+
+  // Remove the interactivity from the message and update the content to acknowledge the interaction
+  //   return {
+  //       "errors": [
+  //           {
+  //               "name": "discussion_place",
+  //               "error": "Sorry, but only kitchen is available!"
+  //           }
+  //       ]
+  //   }
+    web.chat.postEphemeral(
+        payload.channel.id,
+        `Yuhoo! Can't wait for it!..\nSee ya ${payload.submission.discussion_day} at ${payload.submission.discussion_time} in the ${payload.submission.discussion_place}!`,
+        payload.user.id
+    );
+    return {}
 });
