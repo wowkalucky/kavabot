@@ -4,10 +4,16 @@ const bodyParser = require('body-parser');
 const { createMessageAdapter } = require('@slack/interactive-messages');
 const { WebClient } = require('@slack/client');
 
-const {initDiscussion} = require('./discussion');
+const {
+    initDiscussion,
+    initDiscussionMessage,
+    initDiscussionDialog,
+    formatSuccessMessage,
+} = require('./discussion');
 
 
 require('dotenv').config();
+db = {};
 
 
 const clientId = process.env.APP_CLIENT_ID;
@@ -15,27 +21,31 @@ const clientSecret = process.env.APP_CLIENT_SECRET;
 const slackMessages = createMessageAdapter(process.env.VERIFICATION_TOKEN);
 const web = new WebClient(process.env.WEB_API_TOKEN);
 
-// Instantiates Express
+// Express web server initialization:
 const PORT=8822;
 const app = express();
+// middleware parsers:
 app.use(bodyParser.json());                        // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({extended: true}));  // to support URL-encoded bodies
-app.use('/intercom', slackMessages.expressMiddleware());
 
-// Lets start our server
+// Server's launch:
 app.listen(PORT, function () {
     console.log("Example app listening on port " + PORT);
 });
+
+// ENDPOINTS:
+const URLS = {
+    lcInit: '/discussion/init',
+};
+
+// interactive commands endpoint:
+app.use('/intercom', slackMessages.expressMiddleware());
 
 app.post('/events', (req, res) => {
     console.log('EVENTS: ', req.body);
     res.send(req.body.challenge);
     // res.sendStatus(200);
 });
-
-const URLS = {
-    lcInit: '/discussion/init',
-};
 
 // This route handles GET requests to our root ngrok address and responds with the same
 // "Ngrok is working message" we used before
@@ -72,11 +82,14 @@ app.get('/oauth', function(req, res) {
     }
 });
 
-// Discussion initialization slash-command:
+// SLASH COMMANDS:
+
+// Discussion initialization:
 app.post(URLS.lcInit, function(req, res) {
-    console.log(req.body);
+    // console.log(req.body);
     // BODY:
-    // { token: '8wIvXEnO3Dp0VB1yd2kljBOP',
+    // {
+    //   token: '8wIvXEnO3Dp0VB1yd2kljBOP',
     //   team_id: 'T6K8HJZQW',
     //   team_domain: 'slatyne',
     //   channel_id: 'C94H16BPX',
@@ -89,101 +102,47 @@ app.post(URLS.lcInit, function(req, res) {
     //   trigger_id: '315091880999.223289645846.0f1bc7d6b4ff7ab92897ed3f6914428b'
     // }
 
-    const responseUrl = req.body.response_url;
-    const channelId = req.body.channel_id;
-    const userId = req.body.user_id;
     const triggerId = req.body.trigger_id;
-    res.status(200).send({'text': 'Hurray! Initiating new discussion...'});
-
-
-    console.log('New Discussion initialization...');
-    const dialog = JSON.stringify({
-        "callback_id": "init_discussion",
-        "title": "New LeanCofee discussion",
-        "submit_label": "Initiate",
-        "elements": [
-            {
-                "type": "text",
-                "label": "Pick the day",
-                "name": "discussion_day",
-                "hint": "When will it happen?",
-                "value": "This Friday!",
-            },
-            {
-                "type": "select",
-                "label": "Time",
-                "name": "discussion_time",
-                "hint": "What time is suitable?",
-                "value": "13:00",
-                "options": [
-                    {
-                        "label": "12:00",
-                        "value": "12:00"
-                    },
-                    {
-                        "label": "13:00",
-                        "value": "13:00"
-                    },
-                    {
-                        "label": "14:00",
-                        "value": "14:00"
-                    },
-                ]
-            },
-            {
-                "type": "text",
-                "label": "Want to change location?",
-                "name": "discussion_place",
-                "optional": "true",
-                "hint": "We can do it everywhere!",
-                "value": "Basement Hall",
-            }
-        ]
-    });
-    web.dialog.open(dialog, triggerId);
+    res.status(200).send(initDiscussionMessage);
+    web.dialog.open(initDiscussionDialog, triggerId);
 });
 
 
 // MESSAGES section:
 slackMessages.action('init_discussion', (payload) => {
-    console.log('payload', payload);
+    // console.log('payload', payload);
     // PAYLOAD:
-    //{ type: 'dialog_submission',
-    //    submission:
-    //  { discussion_day: 'This Friday!',
-    //    discussion_time: '12:00',
-    //    discussion_place: 'Basement Hall' },
-    // callback_id: 'init_discussion',
-    // team: { id: 'T6K8HJZQW', domain: 'slatyne' },
-    // user: { id: 'U6J9K847M', name: 'wowkalucky' },
-    // channel: { id: 'C94H16BPX', name: 'botex' },
-    // action_ts: '1518475563.667618',
-    // token: '8wIvXEnO3Dp0VB1yd2kljBOP' }
+    // {
+    //     type: 'dialog_submission',
+    //     submission: {
+    //         discussion_day: 'This Friday!',
+    //         discussion_time: '12:00',
+    //         discussion_place: 'Basement Hall'
+    //     },
+    //     callback_id: 'init_discussion',
+    //     team: { id: 'T6K8HJZQW', domain: 'slatyne' },
+    //     user: { id: 'U6J9K847M', name: 'wowkalucky' },
+    //     channel: { id: 'C94H16BPX', name: 'botex' },
+    //     action_ts: '1518475563.667618',
+    //     token: '8wIvXEnO3Dp0VB1yd2kljBOP'
+    // }
 
-    initDiscussion();
+    initDiscussion(payload.submission);
 
-    // respond('message')
-    // Do some asynchronous work (returns a Promise)
-    // Call respond() with a JSON object that represents a replacement message
-    // .then(formatMessage)
-    // .then(respond)
-    // respond();
-    // Set `replace_original` to `false` if the message is not meant to replace the original.
-    // .catch((error) => respond({ text: error.message, replace_original: false }));
-
-  // Remove the interactivity from the message and update the content to acknowledge the interaction
-  //   return {
-  //       "errors": [
-  //           {
-  //               "name": "discussion_place",
-  //               "error": "Sorry, but only kitchen is available!"
-  //           }
-  //       ]
-  //   }
+    // send success message:
     web.chat.postEphemeral(
         payload.channel.id,
-        `Yuhoo! Can't wait for it!..\nSee ya ${payload.submission.discussion_day} at ${payload.submission.discussion_time} in the ${payload.submission.discussion_place}!`,
+        formatSuccessMessage(
+            payload.submission.discussion_day,
+            payload.submission.discussion_time,
+            payload.submission.discussion_place
+        ),
         payload.user.id
     );
     return {}
 });
+
+
+exports = {
+    db
+};
