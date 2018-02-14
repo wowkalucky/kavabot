@@ -5,8 +5,8 @@ const { WebClient } = require('@slack/client');
 const { slackMessages } = require('./actions');
 require('dotenv').config();
 
-const {initDiscussionMessage, initDiscussionDialog} = require('./discussion');
-const {initTopicMessage, initTopicDialog} = require('./topic');
+
+const {lcInit, lcTopic} = require('./commands');
 
 
 db = {};
@@ -28,11 +28,7 @@ app.listen(PORT, function () {
     console.log("Example app listening on port " + PORT);
 });
 
-// ENDPOINTS:
-const URLS = {
-    lcInit: '/discussion/init',
-    lcTopic: '/topic/init',
-};
+
 
 // interactive commands endpoint:
 app.use('/intercom', slackMessages.expressMiddleware());
@@ -78,42 +74,9 @@ app.get('/oauth', function(req, res) {
     }
 });
 
-// SLASH COMMANDS: ===================================================================================================
-
-// Discussion initialization:
-app.post(URLS.lcInit, function(req, res) {
-    // console.log(req.body);
-    // BODY:
-    // {
-    //   token: '8wIvXEnO3Dp0VB1yd2kljBOP',
-    //   team_id: 'T6K8HJZQW',
-    //   team_domain: 'slatyne',
-    //   channel_id: 'C94H16BPX',
-    //   channel_name: 'botex',
-    //   user_id: 'U6J9K847M',
-    //   user_name: 'wowkalucky',
-    //   command: '/lc-init',
-    //   text: '',
-    //   response_url: 'https://hooks.slack.com/commands/T6K8HJZQW/313486814977/6uHO5oycxjkA3bcjIqS2xt4g',
-    //   trigger_id: '315091880999.223289645846.0f1bc7d6b4ff7ab92897ed3f6914428b'
-    // }
-
-    const triggerId = req.body.trigger_id;
-    res.status(200).send(initDiscussionMessage);
-    web.dialog.open(initDiscussionDialog, triggerId);
-});
-
-// Topic initialization:
-app.post(URLS.lcTopic, function(req, res) {
-    // console.log(req.body);
-    const triggerId = req.body.trigger_id;
-
-    res.status(200).send(initTopicMessage);
-    web.dialog.open(initTopicDialog, triggerId);
-});
-
+app.post(...lcInit);
+app.post(...lcTopic);
 
 exports = {
     db,
-    slackMessages,
 };

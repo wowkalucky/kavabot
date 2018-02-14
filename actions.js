@@ -43,7 +43,7 @@ slackMessages.action('init_discussion', (payload) => {
 });
 
 slackMessages.action('init_topic', (payload) => {
-    console.log('payload', payload);
+    // console.log('payload', payload);
 
     initTopic(payload.submission);
 
