@@ -72,9 +72,9 @@ const initDiscussion = (options) => {
         "status": statuses.idle,
         "agenda": []    // TODO: add from Backlog
     });
-    db.discussions.find({}, function(err, qs) {
-        console.log('from DB', qs);
-    });
+    // db.discussions.find({}, function(err, qs) {
+    //     console.log('from DB', qs);
+    // });
 };
 
 module.exports = {

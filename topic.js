@@ -52,9 +52,6 @@ const initTopic = (options) => {
         "url": options.topic_url,
         "status": statuses.idle,
     });
-    db.topics.find({}, function(err, qs) {
-        console.log('from DB', qs);
-    });
 };
 
 module.exports = {
