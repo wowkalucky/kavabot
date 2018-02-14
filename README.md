@@ -72,6 +72,7 @@
     - Discussion.addTopic();
     - Discussion.editTopic(id);
     - Discussion.removeTopic(id);
+    - Topics submission deadline;
 
 3) Voting for Topics;
     - Topic.addVote();

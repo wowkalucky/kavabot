@@ -5,11 +5,10 @@ const { createMessageAdapter } = require('@slack/interactive-messages');
 const { WebClient } = require('@slack/client');
 
 const {
-    initDiscussion,
-    initDiscussionMessage,
-    initDiscussionDialog,
-    formatSuccessMessage,
+    initDiscussion, formatSuccessDiscussionMessage, initDiscussionMessage, initDiscussionDialog,
 } = require('./discussion');
+
+const {initTopic, formatSuccessTopicMessage, initTopicMessage, initTopicDialog} = require('./topic');
 
 
 require('dotenv').config();
@@ -36,6 +35,7 @@ app.listen(PORT, function () {
 // ENDPOINTS:
 const URLS = {
     lcInit: '/discussion/init',
+    lcTopic: '/topic/init',
 };
 
 // interactive commands endpoint:
@@ -82,7 +82,7 @@ app.get('/oauth', function(req, res) {
     }
 });
 
-// SLASH COMMANDS:
+// SLASH COMMANDS: ===================================================================================================
 
 // Discussion initialization:
 app.post(URLS.lcInit, function(req, res) {
@@ -107,8 +107,17 @@ app.post(URLS.lcInit, function(req, res) {
     web.dialog.open(initDiscussionDialog, triggerId);
 });
 
+// Topic initialization:
+app.post(URLS.lcTopic, function(req, res) {
+    // console.log(req.body);
+    const triggerId = req.body.trigger_id;
 
-// MESSAGES section:
+    res.status(200).send(initTopicMessage);
+    web.dialog.open(initTopicDialog, triggerId);
+});
+
+
+// ACTIONS section: =================================================================================================
 slackMessages.action('init_discussion', (payload) => {
     // console.log('payload', payload);
     // PAYLOAD:
@@ -132,7 +141,7 @@ slackMessages.action('init_discussion', (payload) => {
     // send success message:
     web.chat.postEphemeral(
         payload.channel.id,
-        formatSuccessMessage(
+        formatSuccessDiscussionMessage(
             payload.submission.discussion_day,
             payload.submission.discussion_time,
             payload.submission.discussion_place
@@ -142,6 +151,21 @@ slackMessages.action('init_discussion', (payload) => {
     return {}
 });
 
+slackMessages.action('init_topic', (payload) => {
+    console.log('payload', payload);
+
+    initTopic(payload.submission);
+
+    // send success message:
+    web.chat.postEphemeral(
+        payload.channel.id,
+        formatSuccessTopicMessage(payload.user.name),
+        payload.user.id
+    );
+    return {}
+});
+
+console.log('db', db);
 
 exports = {
     db

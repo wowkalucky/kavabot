@@ -6,17 +6,18 @@
     "secretMode": false
   },
   "discussion": {
-    "id": "number",
+    "id": "auto",
     "day": "Friday",
     "time": "13:00",
     "place": "Basement Hall",
-    "status": ["idle", "active", "closed"],
+    "status": ["idle", "active", "archived"],
     "agenda": ["topic1", "topic2", "topic3"]
   },
   "topic": {
-    "id": "hash",
+    "id": "auto",
     "title": "text",
-    "description": "text",
+    "description": "textarea",
+    "url": "text:url",
     "status": ["idle", "active", "archived"]
   },
   "archive": ["archived topics"],

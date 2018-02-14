@@ -1,7 +1,7 @@
 const NEDb = require('nedb');
 const db = require('./app');
 
-const {general, discussion} = require('./options');
+const {discussion, statuses} = require('./options');
 
 
 db.discussions = new NEDb({ filename: 'discussions.db', autoload: true });
@@ -11,7 +11,7 @@ const initDiscussionMessage = {
     'text': 'Hurray! Initiating new discussion...'
 };
 
-const formatSuccessMessage = (day, time, place) => (
+const formatSuccessDiscussionMessage = (day, time, place) => (
     `Yuhoo! Can't wait for it!..\nSee ya ${day} at ${time} in the ${place}!`
 );
 
@@ -69,7 +69,7 @@ const initDiscussion = (options) => {
         "day": options.discussion_day === discussion.defaults.day ? getNextFriday() : options.day,
         "time": options.discussion_time,
         "place": options.discussion_place,
-        "status": discussion.statuses.idle,
+        "status": statuses.idle,
         "agenda": []    // TODO: add from Backlog
     });
     db.discussions.find({}, function(err, qs) {
@@ -81,18 +81,5 @@ module.exports = {
     initDiscussion,
     initDiscussionMessage,
     initDiscussionDialog,
-    formatSuccessMessage,
+    formatSuccessDiscussionMessage,
 };
-
-// db.insert({
-//     "options": {
-//         "quorum": 5,
-//         "agendaScope": 3,
-//         "votesCount": 2,
-//         "secretMode": false
-//     }
-// });
-//
-// db.findOne({}, function (err, qs) {
-//     console.log(qs.options.quorum);
-// });
