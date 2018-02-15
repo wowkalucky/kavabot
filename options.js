@@ -1,6 +1,8 @@
 module.exports = {
     general: {
-        "quorum": 5
+        "quorum": 5,
+        "agendaScope": 3,
+        "votesCount": 2,
     },
     discussion: {
         defaults: {

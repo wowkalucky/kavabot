@@ -5,11 +5,8 @@ const { WebClient } = require('@slack/client');
 const { slackMessages } = require('./actions');
 require('dotenv').config();
 
-
 const {lcInit, lcTopic} = require('./commands');
 
-
-db = {};
 
 const clientId = process.env.APP_CLIENT_ID;
 const clientSecret = process.env.APP_CLIENT_SECRET;
@@ -76,7 +73,3 @@ app.get('/oauth', function(req, res) {
 
 app.post(...lcInit);
 app.post(...lcTopic);
-
-exports = {
-    db,
-};

@@ -10,15 +10,16 @@
     "day": "Friday",
     "time": "13:00",
     "place": "Basement Hall",
-    "status": ["idle", "active", "archived"],
-    "agenda": ["topic1", "topic2", "topic3"]
+    "status": ["active", "archived"],
+    "agenda": ["...idle_topics", "<topic1_id>", "<topic2_id>"]
   },
   "topic": {
     "id": "auto",
     "title": "text",
     "description": "textarea",
     "url": "text:url",
-    "status": ["idle", "active", "archived"]
+    "status": ["idle", "active", "archived"],
+    "discussion": "<discussion_id>"
   },
   "archive": ["archived topics"],
   "backlog": ["idle topics"]

@@ -1,10 +1,6 @@
-const NEDb = require('nedb');
-const db = require('./app');
-
+const {db} = require('./storage');
 const {discussion, statuses} = require('./options');
 
-
-db.discussions = new NEDb({ filename: 'discussions.db', autoload: true });
 
 // MESSAGES:
 const initDiscussionMessage = {
@@ -64,17 +60,29 @@ const initDiscussionDialog = JSON.stringify({
 const getNextFriday = () => '2018-02-16';  // TODO: smarter
 
 const initDiscussion = (options) => {
-    console.log('Creating new Discussion...');
-    db.discussions.insert({
-        "day": options.discussion_day === discussion.defaults.day ? getNextFriday() : options.day,
-        "time": options.discussion_time,
-        "place": options.discussion_place,
-        "status": statuses.idle,
-        "agenda": []    // TODO: add from Backlog
+    console.log('Gathering Backlog topics...');
+    db.topics.find({status: statuses.idle}, (err, qs) => {
+        const backlogIds = qs.map((topic) => topic._id);
+
+        console.log('Creating new Discussion...');
+        db.discussions.insert({
+            day: options.discussion_day === discussion.defaults.day ? getNextFriday() : options.day,
+            time: options.discussion_time,
+            place: options.discussion_place,
+            status: statuses.active,
+            agenda: backlogIds,
+        },
+        (err, newDiscussion) => {
+            console.log('Activating Backlog...');
+            db.topics.update(
+                {status: statuses.idle},
+                {$set: {status: statuses.active, discussion: newDiscussion._id}},
+                {}, (err, numActivated) => {
+                    console.log(`${numActivated} Backlog topics activated...`);
+                }
+            );
+        });
     });
-    // db.discussions.find({}, function(err, qs) {
-    //     console.log('from DB', qs);
-    // });
 };
 
 module.exports = {

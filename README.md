@@ -50,6 +50,7 @@
 - quorum: 5;
 - votes_count: 2;
 - agenda_scope: 3;
+- deadline: 60 min;
 
 - topic_categories: [cool, hot]
 - secret_voting: true;
@@ -75,8 +76,8 @@
     - Topics submission deadline;
 
 3) Voting for Topics;
-    - Topic.addVote();
-    - Topic.moveVote();
+    - Topic.vote();
+    - Topic.unvote();
 
 4) Defining (voting closing and publishing) discussion Agenda (auto);
 

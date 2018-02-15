@@ -1,16 +1,15 @@
-const NEDb = require('nedb');
-const db = require('./app');
-
+const {db} = require('./storage');
 const {statuses} = require('./options');
 
-db.topics = new NEDb({ filename: 'topics.db', autoload: true });
 
 // MESSAGES:
 const initTopicMessage = {
     "text": "Let's write it down..."
 };
 
-const formatSuccessTopicMessage = (name) => `Submitted! I'll remind you about the event on the eve, ${name}. Now, back to work!`;
+const formatSuccessTopicMessage = (name) => (
+    `Submitted! I'll remind you about the event on the eve, ${name}. \nNow, back to work!`
+);
 
 const initTopicDialog = JSON.stringify({
     "callback_id": "init_topic",
@@ -45,12 +44,27 @@ const initTopicDialog = JSON.stringify({
 });
 
 const initTopic = (options) => {
-    console.log('New topic creation...');
-    db.topics.insert({
-        "title": options.topic_title,
-        "description": options.topic_body,
-        "url": options.topic_url,
-        "status": statuses.idle,
+    console.log('Fetching active Discussion...');
+    db.discussions.findOne({status: statuses.active}, (err, qs) => {
+        const discussionOpened = !!qs;
+        console.log('New topic creation...');
+        db.topics.insert({
+            title: options.topic_title,
+            description: options.topic_body,
+            url: options.topic_url,
+            status: discussionOpened ? statuses.active : statuses.idle,
+            discussion: discussionOpened ? qs._id : null,
+        },
+        (err, newTopic) => {
+            console.log('Adding new Topic to Agenda...');
+            db.discussions.update(
+                {status: statuses.active},
+                {$set: {agenda: [...qs.agenda, newTopic._id]}},
+                {}, (err, numUpdated) => {
+                    console.log(`New topic added to Agenda: ${newTopic.title}`);
+                }
+            )}
+        );
     });
 };
 
