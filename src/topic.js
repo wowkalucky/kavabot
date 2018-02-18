@@ -56,14 +56,15 @@ const initTopic = (options) => {
             discussion: discussionOpened ? qs._id : null,
         },
         (err, newTopic) => {
-            console.log('Adding new Topic to Agenda...');
-            db.discussions.update(
-                {status: statuses.active},
-                {$set: {agenda: [...qs.agenda, newTopic._id]}},
-                {}, (err, numUpdated) => {
-                    console.log(`New topic added to Agenda: ${newTopic.title}`);
-                }
-            )}
+            console.log(`Adding new Topic to ${discussionOpened ? 'Agenda' : 'Backlog'}...`);
+            if (discussionOpened) {
+                db.discussions.update(
+                    {$set: {agenda: [...qs.agenda, newTopic._id]}},
+                    {}, (err, numUpdated) => {
+                        console.log(`New topic added to Agenda: ${newTopic.title}`);
+                    }
+                )}
+            }
         );
     });
 };
