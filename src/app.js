@@ -34,6 +34,9 @@ app.post('/events', (req, res) => {
     console.log('EVENTS: ', req.body);
     res.send(req.body.challenge);
     // res.sendStatus(200);
+    // TODO: bot commands:
+    // - topic,
+    // - vote
 });
 
 // This route handles GET requests to our root ngrok address and responds with the same

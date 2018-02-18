@@ -1,5 +1,5 @@
 const db = require('./storage');
-const {statuses, ages} = require('./options');
+const {statuses, ages, general} = require('./options');
 
 
 // MESSAGES:
@@ -7,22 +7,23 @@ const initTopicMessage = {
     "text": "Let's write it down..."
 };
 const voteTopicMessage = {
-    "text": "Composing Agenda..."
+    "text": "Composing Backlog..."
 };
 const voteMessage = {
     "text": `
-        *Here the list of proposed Topics (aka Agenda)!*\n
-        _new ones :new: are *yellow* highlighted_\n
-        _you may notice the topic popularity by corresponding icons:_ HOT(10+):fire:, WARM(5+) :hotsprings:
-        \n\n 
+        *Here the list of proposed Topics (aka Backlog)!*\n
+        _NOTES:_
+        :bulb: _the top most voted *${general.agendaScope}* topics (green highlighted) are the winners and will compose the Agenda._
+        :bulb: _:new: new ones (yellow highlighted)_
+        :bulb: _you may notice the topic popularity by corresponding icons:_ HOT(10+):fire:, WARM(5+) :hotsprings:
+        .
     `
 };
-
-
 const formatSuccessTopicMessage = (name) => (
     `Submitted! I'll remind you about the event on the eve, ${name}. \nNow, back to work!`
 );
 
+// DIALOGS:
 const initTopicDialog = JSON.stringify({
     "callback_id": "init_topic",
     "title": "New LeanCofee Topic",

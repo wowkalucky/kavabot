@@ -1,7 +1,7 @@
 const { WebClient } = require('@slack/client');
 
 const db = require('./storage');
-const {discussion, statuses, ages} = require('./options');
+const {general, discussion, statuses, ages} = require('./options');
 
 
 const web = new WebClient(process.env.WEB_API_TOKEN);
@@ -98,14 +98,14 @@ const showAgenda = (channelId, userId, message) => {
         .find({status: {$ne: statuses.closed}})
         .sort({ age: 1 , votes: -1, totalVotes: -1})
         .exec((err, topics) => {
-        const agenda = topics.map((topic) => {
+        const agenda = topics.map((topic, i) => {
             const fresh = topic.age === ages.new;
             const hot = topic.votes >= 10;
             const warm = 10 > topic.votes && topic.votes > 5;
             return {
                 "fallback": topic.title,
-                "color": fresh ? "warning" : "info",
-                "title": `${hot ? ':fire: ' : ''}${warm ? ':hotsprings: ' : ''}${fresh ? ':new: ' : ''}${topic.title}`,
+                "color": i < general.agendaScope ? "good" : (fresh ? "warning" : "info"),
+                "title": `${fresh ? ':new: ' : ''}${hot ? ':fire: ' : ''}${warm ? ':hotsprings: ' : ''}${topic.title}`,
                 "title_link": topic.url,
                 "text": topic.description,
                 "footer": `<@${topic.author.id}>  |  ${topic.votes}`,
