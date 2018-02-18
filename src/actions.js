@@ -30,7 +30,12 @@ slackMessages.action('init_discussion', (payload) => {
     initDiscussion(payload.submission);
 
     // send success message:
-    showAgenda(payload);
+    const message = formatSuccessDiscussionMessage(
+        payload.submission.discussion_day,
+        payload.submission.discussion_time,
+        payload.submission.discussion_place
+    );
+    showAgenda(payload.channel.id, payload.user.id, message);
 
     return {}
 });
@@ -50,6 +55,25 @@ slackMessages.action('init_topic', (payload) => {
         formatSuccessTopicMessage(payload.user.name),
         payload.user.id
     );
+    return {}
+});
+
+slackMessages.action('vote_topic', (payload) => {
+    console.log('payload', payload);
+
+
+    // initTopic({
+    //     ...payload.submission,
+    //     ts: payload.action_ts,
+    //     author: payload.user
+    // });
+    //
+    // // send success message:
+    // web.chat.postEphemeral(
+    //     payload.channel.id,
+    //     formatSuccessTopicMessage(payload.user.name),
+    //     payload.user.id
+    // );
     return {}
 });
 

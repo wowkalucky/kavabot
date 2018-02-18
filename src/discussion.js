@@ -93,7 +93,7 @@ const initDiscussion = (options) => {
 // TODO:
 // const closeDiscussion;
 
-const showAgenda = (payload) => {
+const showAgenda = (channelId, userId, message) => {
     db.topics
         .find({status: {$ne: statuses.closed}})
         .sort({ age: 1 , votes: -1, totalVotes: -1})
@@ -127,16 +127,7 @@ const showAgenda = (payload) => {
                 ]
             }
         });
-        web.chat.postEphemeral(
-            payload.channel.id,
-            formatSuccessDiscussionMessage(
-                payload.submission.discussion_day,
-                payload.submission.discussion_time,
-                payload.submission.discussion_place
-            ),
-            payload.user.id,
-            {attachments: agenda}
-        );
+        web.chat.postEphemeral(channelId, message.text, userId, {attachments: agenda});
     });
 };
 

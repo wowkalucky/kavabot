@@ -6,6 +6,18 @@ const {statuses, ages} = require('./options');
 const initTopicMessage = {
     "text": "Let's write it down..."
 };
+const voteTopicMessage = {
+    "text": "Composing Agenda..."
+};
+const voteMessage = {
+    "text": `
+        *Here the list of proposed Topics (aka Agenda)!*\n
+        _new ones :new: are *yellow* highlighted_\n
+        _you may notice the topic popularity by corresponding icons:_ HOT(10+):fire:, WARM(5+) :hotsprings:
+        \n\n 
+    `
+};
+
 
 const formatSuccessTopicMessage = (name) => (
     `Submitted! I'll remind you about the event on the eve, ${name}. \nNow, back to work!`
@@ -76,6 +88,8 @@ const initTopic = (options) => {
 
 module.exports = {
     initTopicMessage,
+    voteTopicMessage,
+    voteMessage,
     initTopicDialog,
     initTopic,
     formatSuccessTopicMessage,
