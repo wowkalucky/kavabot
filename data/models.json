@@ -18,8 +18,13 @@
     "title": "text",
     "description": "textarea",
     "url": "text:url",
+    "author": "<author>",
     "status": ["idle", "active", "archived"],
-    "discussion": "<discussion_id>"
+    "discussion": "<discussion_id>",
+    "age": ["old", "new"],
+    "votes": "<number>",
+    "totalVotes": "<number>",
+    "ts": "<timestamp>"
   },
   "archive": ["archived topics"],
   "backlog": ["idle topics"]

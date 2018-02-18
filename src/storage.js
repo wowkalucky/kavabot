@@ -2,9 +2,7 @@ const NEDb = require('nedb');
 
 
 db = {};
-db.discussions = new NEDb({ filename: 'discussions.db', autoload: true });
-db.topics = new NEDb({ filename: 'topics.db', autoload: true });
+db.discussions = new NEDb({ filename: 'data/discussions.db', autoload: true });
+db.topics = new NEDb({ filename: 'data/topics.db', autoload: true });
 
-module.exports = {
-    db,
-};
+module.exports = db;

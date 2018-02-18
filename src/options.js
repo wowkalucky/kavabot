@@ -15,5 +15,9 @@ module.exports = {
         idle: "idle",
         active: "active",
         closed: "closed"
+    },
+    ages: {
+        old: "old",
+        new: "new",
     }
 };

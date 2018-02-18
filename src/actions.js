@@ -2,7 +2,7 @@ const { createMessageAdapter } = require('@slack/interactive-messages');
 const { WebClient } = require('@slack/client');
 require('dotenv').config();
 
-const {initDiscussion, formatSuccessDiscussionMessage} = require('./discussion');
+const {initDiscussion, formatSuccessDiscussionMessage, showAgenda} = require('./discussion');
 const {initTopic, formatSuccessTopicMessage} = require('./topic');
 
 
@@ -30,22 +30,19 @@ slackMessages.action('init_discussion', (payload) => {
     initDiscussion(payload.submission);
 
     // send success message:
-    web.chat.postEphemeral(
-        payload.channel.id,
-        formatSuccessDiscussionMessage(
-            payload.submission.discussion_day,
-            payload.submission.discussion_time,
-            payload.submission.discussion_place
-        ),
-        payload.user.id
-    );
+    showAgenda(payload);
+
     return {}
 });
 
 slackMessages.action('init_topic', (payload) => {
     // console.log('payload', payload);
 
-    initTopic(payload.submission);
+    initTopic({
+        ...payload.submission,
+        ts: payload.action_ts,
+        author: payload.user
+    });
 
     // send success message:
     web.chat.postEphemeral(

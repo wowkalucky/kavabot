@@ -1,5 +1,5 @@
-const {db} = require('./storage');
-const {statuses} = require('./options');
+const db = require('./storage');
+const {statuses, ages} = require('./options');
 
 
 // MESSAGES:
@@ -52,7 +52,12 @@ const initTopic = (options) => {
             title: options.topic_title,
             description: options.topic_body,
             url: options.topic_url,
+            author: options.author,
             status: discussionOpened ? statuses.active : statuses.idle,
+            age: ages.new,
+            votes: 0,
+            totalVotes: 0,
+            ts: options.ts,
             discussion: discussionOpened ? qs._id : null,
         },
         (err, newTopic) => {
