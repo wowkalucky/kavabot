@@ -52,7 +52,7 @@ module.exports = {
 
         const triggerId = req.body.trigger_id;
         res.status(200).send(initTopicMessage);
-        web.dialog.open(initTopicDialog, triggerId);payload
+        web.dialog.open(initTopicDialog, triggerId);
     }],
     // Perform Voting:
     lcVote: ['/topic/vote', function(req, res) {
@@ -63,6 +63,5 @@ module.exports = {
         res.status(200).send(voteTopicMessage);
 
         showAgenda(req.body.channel_id, req.body.user_id, voteMessage);
-        // web.dialog.open(initTopicDialog, triggerId);
     }]
 };

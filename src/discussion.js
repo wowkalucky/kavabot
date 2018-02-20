@@ -11,10 +11,10 @@ const initDiscussionMessage = {
     'text': 'Hurray! Initiating new discussion...'
 };
 
-const formatSuccessDiscussionMessage = (day, time, place) => (
-    `Yuhoo! Can't wait for it!..\nSee ya ${day} at ${time} in the ${place}!` +
-    '\n\n FYI, here is current Agenda:'
-);
+const formatSuccessDiscussionMessage = (day, time, place) => ({
+    text: `Yuhoo! Can't wait for it!..\nSee ya ${day} at ${time} in the ${place}!` +
+          '\n\n FYI, here is current Agenda:'
+});
 
 // TODO: date/time handling
 const initDiscussionDialog = JSON.stringify({
@@ -103,6 +103,7 @@ const showAgenda = (channelId, userId, message) => {
             const hot = topic.votes >= 10;
             const warm = 10 > topic.votes && topic.votes > 5;
             return {
+                "callback_id": "vote_topic",
                 "fallback": topic.title,
                 "color": i < general.agendaScope ? "good" : (fresh ? "warning" : "info"),
                 "title": `${fresh ? ':new: ' : ''}${hot ? ':fire: ' : ''}${warm ? ':hotsprings: ' : ''}${topic.title}`,
@@ -113,21 +114,27 @@ const showAgenda = (channelId, userId, message) => {
                 "ts": topic.ts,
                 "actions": [
                     {
-                        "type": "button",
+                        "name": topic._id,
                         "text": "Vote! :thumbsup:",
-                        "url": "https://flights.example.com/book/r123456",
+                        "value": 1,
+                        "type": "button",
                         "style": "primary"
                     },
                     {
-                        "type": "button",
+                        "name": topic._id,
                         "text": "Unvote...",
-                        "url": "https://requests.example.com/cancel/r123456",
+                        "value": 0,
+                        "type": "button",
                         "style": "danger"
                     }
                 ]
             }
         });
-        web.chat.postEphemeral(channelId, message.text, userId, {attachments: agenda});
+        if ('ts' in message) {
+            web.chat.update(message.ts, channelId, message.text, {attachments: agenda});
+        } else {
+            web.chat.postMessage(channelId, message.text, {attachments: agenda});
+        }
     });
 };
 

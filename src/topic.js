@@ -14,14 +14,16 @@ const voteMessage = {
         *Here the list of proposed Topics (aka Backlog)!*\n
         _NOTES:_
         :bulb: _the top most voted *${general.agendaScope}* topics (green highlighted) are the winners and will compose the Agenda._
-        :bulb: _:new: new ones (yellow highlighted)_
-        :bulb: _you may notice the topic popularity by corresponding icons:_ HOT(10+):fire:, WARM(5+) :hotsprings:
+        :pushpin: _:new: new ones (yellow highlighted)_
+        :pushpin: _you may notice the topic popularity by corresponding icons:_ HOT(10+):fire:, WARM(5+) :hotsprings:
+        :pushpin: *_don't be so shy - you'll be able to re-vote at any time till Discussion deadline!_*
         .
     `
 };
 const formatSuccessTopicMessage = (name) => (
     `Submitted! I'll remind you about the event on the eve, ${name}. \nNow, back to work!`
 );
+
 
 // DIALOGS:
 const initTopicDialog = JSON.stringify({
