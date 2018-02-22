@@ -2,6 +2,8 @@ const { createMessageAdapter } = require('@slack/interactive-messages');
 const { WebClient } = require('@slack/client');
 require('dotenv').config();
 
+const db = require('./storage');
+const {general, statuses} = require('./options');
 const {initDiscussion, formatSuccessDiscussionMessage, showAgenda} = require('./discussion');
 const {initTopic, formatSuccessTopicMessage} = require('./topic');
 
@@ -59,8 +61,9 @@ slackMessages.action('init_topic', (payload) => {
 });
 
 slackMessages.action('vote_topic', (payload) => {
+    console.log('`vote_topic` action');
     // console.log('payload', payload);
-
+    const action = payload.actions[0];
     // payload {
     //     type: 'interactive_message',
     //     actions: [ { name: '8uWrogIHZlPs2ED1', type: 'button', value: '1' } ],
@@ -77,25 +80,80 @@ slackMessages.action('vote_topic', (payload) => {
     //     trigger_id: '317012342498.223289645846.0c7575f099b640d8250ef2f33ee921db'
     // }
 
-    // updateTopic(payload.actions.name, payload.actions.value, payload.user.id);
-    
-    showAgenda(payload.channel.id, payload.user.id, {
-        text: ((vote) => {
-            return [
-                [
-                    `*Number ${payload.attachment_id} - booo!..*\n`,
-                    `*Yeah... Number ${payload.attachment_id} isn't good enough...*\n`,
-                    `*Number ${payload.attachment_id}! Must die!*\n`,
-                ],
-                [
-                    `*Number ${payload.attachment_id}! Good choice!*\n`,
-                    `*Sold! Number ${payload.attachment_id}!*\n`,
-                    `*Excellent! Number ${payload.attachment_id}! I knew it!*\n`,
-                ]
-            ][vote][Math.floor(Math.random() * 3)];
-        })(payload.actions[0].value),
-        ts: payload.message_ts,
-    });
+    const voteIt = (payload) => {
+        "use strict";
+        console.log('[voteIt]');
+
+        function changeVotes(vote) {
+            return parseInt(vote) ? {"$inc": {"votes": 1}} : {"$inc": {"votes": -1}};
+        }
+
+        function addVote(doc) {
+            console.log('Adding vote...');
+            const userId = payload.user.id;
+
+            if (typeof doc.votes[userId] === 'undefined') {
+                console.log('new vote added');
+                doc.votes[userId] = [action.name];
+            } else {
+                if (doc.votes[userId].length === general.votesCount) {
+                    console.log('add vote rejected');
+                    return false
+                }
+                console.log('next vote added');
+                doc.votes[userId].push(action.name);
+            }
+            return true;
+        }
+
+        db.discussions.findOne(
+            {status: statuses.active},
+            (err, doc) => {
+                if (parseInt(action.value)) {
+                    const voteAdded = addVote(doc);
+                    if (voteAdded) {
+                        db.discussions.update(
+                            {status: statuses.active},
+                            doc,
+                            (err, updCount) => {
+                                console.log('updated', updCount, doc);
+                                db.topics.update(
+                                    {_id: action.name},
+                                    changeVotes(action.value),
+                                    (err, updated) => {
+                                        console.log(`${updated} topic updated [${action.name}]`);
+                                        showAgenda(payload.channel.id, payload.user.id, {
+                                            // text: 'someTEXT',
+                                            text: ((vote) => {
+                                                return [
+                                                    [
+                                                        `*Number ${payload.attachment_id} - booo!..*\n`,
+                                                        `*Yeah... Number ${payload.attachment_id} isn't good enough...*\n`,
+                                                        `*Number ${payload.attachment_id}! Must die!*\n`,
+                                                    ],
+                                                    [
+                                                        `*Number ${payload.attachment_id}! Good choice!*\n`,
+                                                        `*Sold! Number ${payload.attachment_id}!*\n`,
+                                                        `*Excellent! Number ${payload.attachment_id}! I knew it!*\n`,
+                                                    ]
+                                                ][vote][Math.floor(Math.random() * 3)];
+                                            })(action.value),
+                                            ts: payload.message_ts,
+                                        });
+                                    }
+                                )
+                            }
+                        );
+                    }
+                }
+            }
+        );
+
+    };
+
+    voteIt(payload);
+
+
     // return {}
 });
 

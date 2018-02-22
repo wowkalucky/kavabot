@@ -11,7 +11,8 @@
     "time": "13:00",
     "place": "Basement Hall",
     "status": ["active", "archived"],
-    "agenda": ["...idle_topics", "<topic1_id>", "<topic2_id>"]
+    "agenda": ["...idle_topics", "<topic1_id>", "<topic2_id>"],
+    "votes": {"<userId>": ["<topicId1>", "<topicId1>"]}
   },
   "topic": {
     "id": "auto",
