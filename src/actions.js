@@ -5,7 +5,7 @@ require('dotenv').config();
 const db = require('./storage');
 const {general, statuses} = require('./options');
 const {initDiscussion, formatSuccessDiscussionMessage, showAgenda} = require('./discussion');
-const {initTopic, formatSuccessTopicMessage} = require('./topic');
+const {initTopic, formatSuccessTopicMessage, showTopics} = require('./topic');
 
 
 const web = new WebClient(process.env.WEB_API_TOKEN);
@@ -43,6 +43,7 @@ slackMessages.action('init_discussion', (payload) => {
 });
 
 slackMessages.action('init_topic', (payload) => {
+    console.log('[action:init_topic]');
     // console.log('payload', payload);
 
     initTopic({
@@ -52,18 +53,29 @@ slackMessages.action('init_topic', (payload) => {
     });
 
     // send success message:
-    web.chat.postEphemeral(
+    web.chat.postMessage(
         payload.channel.id,
         formatSuccessTopicMessage(payload.user.name),
-        payload.user.id
+        {attachments: [{
+            "callback_id": "show_backlog",
+            "fallback": 'The Backlog',
+            "color": "info",
+            "actions": [{
+                "name": "backlog",
+                "text": "See Backlog",
+                "value": "backlog",
+                "type": "button",
+                "style": "primary"
+            }],
+        }]}
     );
     return {}
 });
 
 slackMessages.action('vote_topic', (payload) => {
     console.log('`vote_topic` action');
-    // console.log('payload', payload);
     const action = payload.actions[0];
+    // console.log('payload', payload);
     // payload {
     //     type: 'interactive_message',
     //     actions: [ { name: '8uWrogIHZlPs2ED1', type: 'button', value: '1' } ],
@@ -169,8 +181,19 @@ slackMessages.action('vote_topic', (payload) => {
 
     voteIt(payload);
 
+});
 
-    // return {}
+slackMessages.action('show_backlog', (payload) => {
+    console.log('`show_backlog` action');
+    const action = payload.actions[0];
+
+    if (action.value === 'backlog') {
+        console.log('Seeing Backlog...');
+        // showBacklog(payload.channel.id, {
+        //     text: `*The Backlog*\n\nThese Topics weren't discussed yet.\n`
+        // });
+        showTopics(payload.channel.id, payload.user.id)
+    }
 });
 
 module.exports = {

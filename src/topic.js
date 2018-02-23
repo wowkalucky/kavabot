@@ -1,6 +1,11 @@
+const {WebClient} = require('@slack/client');
+
 const db = require('./storage');
 const {statuses, ages, general} = require('./options');
+const {showAgenda} = require('./discussion');
 
+
+const web = new WebClient(process.env.WEB_API_TOKEN);
 
 // MESSAGES:
 const initTopicMessage = {
@@ -10,21 +15,17 @@ const voteTopicMessage = {
     "text": "Composing Backlog..."
 };
 const voteMessage = {
-    "text": `
-        *Here the list of proposed Topics (aka Backlog)!*\n
-        _NOTES:_
-        :bulb: _the top most voted *${general.agendaScope}* topics (green highlighted) are the winners and will compose the Agenda._
-        :pushpin: _:new: new ones (yellow highlighted)_
-        :pushpin: _you may notice the topic popularity by corresponding icons:_ HOT(10+):fire:, WARM(5+) :hotsprings:
-        :pushpin: *_don't be so shy - you'll be able to re-vote at any time till Discussion deadline!_*
-        .
-    `
+    "text": `*Here the list of proposed Topics (aka Backlog)!*\n
+_NOTES:_
+:bulb: _the top most voted *${general.agendaScope}* topics (green highlighted) are the winners and will compose the Agenda._
+:pushpin: _:new: new ones (yellow highlighted)_
+:pushpin: _you may notice the topic popularity by corresponding icons:_ HOT(10+):fire:, WARM(5+) :hotsprings:
+:pushpin: *_don't be so shy - you'll be able to re-vote at any time till Discussion deadline!_*
+\n`
 };
-const formatSuccessTopicMessage = (name) => (
-    `Submitted! I'll remind you about the event on the eve, ${name}. \nNow, back to work!`
-);
-
-
+const backlogMessage = {
+    "text": `*The Backlog*\n\nThere is *no opened Discussion* right now.\nSo voting isn't available.`
+};
 // DIALOGS:
 const initTopicDialog = JSON.stringify({
     "callback_id": "init_topic",
@@ -58,6 +59,12 @@ const initTopicDialog = JSON.stringify({
     ]
 });
 
+
+const formatSuccessTopicMessage = (name) => (
+    `*Submitted!* \nI'll remind you about the event on the eve, *${name}*. \nNow, back to work!
+     \nOr... You may take a look on the Backlog :thinking_face:`
+);
+
 const initTopic = (options) => {
     console.log('Fetching active Discussion...');
     db.discussions.findOne({status: statuses.active}, (err, qs) => {
@@ -89,11 +96,56 @@ const initTopic = (options) => {
     });
 };
 
+const showBacklog = (channelId, message) => {
+    "use strict";
+    console.log('[showBacklog]');
+
+    db.topics
+        .find({status: statuses.idle})
+        .sort({age: 1, totalVotes: -1})
+        .exec((err, topics) => {
+            const backlog = topics.map((topic) => {
+                const fresh = topic.age === ages.new;
+                return {
+                    "callback_id": "show_backlog",
+                    "fallback": topic.title,
+                    "color": fresh ? "warning" : "info",
+                    "title": `${fresh ? ':new: ' : ''} ${topic.title}`,
+                    "title_link": topic.url,
+                    "text": topic.description,
+                    "footer": `<@${topic.author.id}>  |  ${topic.totalVotes}`,
+                    "footer_icon": "https://avatars3.githubusercontent.com/u/11388447?s=200&v=4",
+                    "ts": topic.ts,
+                }
+            });
+            console.log('posting message...');
+            web.chat.postMessage(channelId, message.text, {attachments: backlog});
+        }
+    );
+};
+
+const showTopics = (channelId, userId, message) => {
+    "use strict";
+    db.discussions.findOne(
+        {status: statuses.active},
+        (err, doc) => {
+            if (doc) {
+                showAgenda(channelId, userId, message || voteMessage);
+            } else {
+                showBacklog(channelId, message || backlogMessage);
+            }
+        }
+    );
+};
+
 module.exports = {
     initTopicMessage,
     voteTopicMessage,
     voteMessage,
+    backlogMessage,
     initTopicDialog,
     initTopic,
     formatSuccessTopicMessage,
+    showBacklog,
+    showTopics,
 };

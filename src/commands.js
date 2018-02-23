@@ -3,8 +3,11 @@
 const { WebClient } = require('@slack/client');
 require('dotenv').config();
 
+const {statuses} = require('./options');
 const {initDiscussionMessage, initDiscussionDialog, showAgenda} = require('./discussion');
-const {initTopicMessage, voteTopicMessage, voteMessage, initTopicDialog} = require('./topic');
+const {
+    initTopicMessage, voteTopicMessage, voteMessage, backlogMessage, initTopicDialog, showTopics
+} = require('./topic');
 
 
 const web = new WebClient(process.env.WEB_API_TOKEN);
@@ -56,12 +59,8 @@ module.exports = {
     }],
     // Perform Voting:
     lcVote: ['/topic/vote', function(req, res) {
-        // console.log(req.body);
-        // BODY:
-
-        const triggerId = req.body.trigger_id;
+        console.log('command:lc-vote');
         res.status(200).send(voteTopicMessage);
-
-        showAgenda(req.body.channel_id, req.body.user_id, voteMessage);
+        showTopics(req.body.channel_id, req.body.user_id)
     }]
 };
