@@ -97,15 +97,12 @@ const initDiscussion = (options) => {
 const showAgenda = (channelId, userId, message) => {
     console.log('[showAgenda]');
 
-
-
     function makeActions(topic, userVotes) {
         "use strict";
         console.log('making actions...');
-        let actions = [];
-
         console.log('userVotes', userVotes);
-        console.log('+', typeof userVotes === 'undefined' || userVotes.length < general.votesCount);
+
+        let actions = [];
         if (typeof userVotes === 'undefined' || userVotes.length < general.votesCount) {
             actions.push(
                 {
@@ -116,10 +113,8 @@ const showAgenda = (channelId, userId, message) => {
                     "style": "primary"
                 },
             );
-            console.log('actions:',  actions);
         }
-        console.log('-', userVotes && topic._id in userVotes);
-        if (userVotes && topic._id in userVotes) {
+        if (userVotes && userVotes.includes(topic._id)) {
             actions.push(
                 {
                     "name": topic._id,
@@ -129,7 +124,6 @@ const showAgenda = (channelId, userId, message) => {
                     "style": "danger"
                 }
             );
-            console.log('actions:',  actions);
         }
         return actions;
     }
@@ -172,7 +166,6 @@ const showAgenda = (channelId, userId, message) => {
 
         });
 };
-
 
 module.exports = {
     initDiscussion,

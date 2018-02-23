@@ -83,6 +83,7 @@ slackMessages.action('vote_topic', (payload) => {
     const voteIt = (payload) => {
         "use strict";
         console.log('[voteIt]');
+        const userId = payload.user.id;
 
         function changeVotes(vote) {
             return parseInt(vote) ? {"$inc": {"votes": 1}} : {"$inc": {"votes": -1}};
@@ -90,7 +91,6 @@ slackMessages.action('vote_topic', (payload) => {
 
         function addVote(doc) {
             console.log('Adding vote...');
-            const userId = payload.user.id;
 
             if (typeof doc.votes[userId] === 'undefined') {
                 console.log('new vote added');
@@ -106,45 +106,61 @@ slackMessages.action('vote_topic', (payload) => {
             return true;
         }
 
+        function revokeVote(doc) {
+            console.log('Revoking vote...');
+
+            if (typeof doc.votes[userId] === 'undefined') {
+                console.log('nothing to revoke');
+                return false;
+            } else {
+                console.log('vote revoked');
+                const index = doc.votes[userId].indexOf(action.name);
+                if (index !== -1) doc.votes[userId].splice(index, 1);
+            }
+            return true;
+        }
+
         db.discussions.findOne(
             {status: statuses.active},
             (err, doc) => {
+                let voteChanged = null;
                 if (parseInt(action.value)) {
-                    const voteAdded = addVote(doc);
-                    if (voteAdded) {
-                        db.discussions.update(
-                            {status: statuses.active},
-                            doc,
-                            (err, updCount) => {
-                                console.log('updated', updCount, doc);
-                                db.topics.update(
-                                    {_id: action.name},
-                                    changeVotes(action.value),
-                                    (err, updated) => {
-                                        console.log(`${updated} topic updated [${action.name}]`);
-                                        showAgenda(payload.channel.id, payload.user.id, {
-                                            // text: 'someTEXT',
-                                            text: ((vote) => {
-                                                return [
-                                                    [
-                                                        `*Number ${payload.attachment_id} - booo!..*\n`,
-                                                        `*Yeah... Number ${payload.attachment_id} isn't good enough...*\n`,
-                                                        `*Number ${payload.attachment_id}! Must die!*\n`,
-                                                    ],
-                                                    [
-                                                        `*Number ${payload.attachment_id}! Good choice!*\n`,
-                                                        `*Sold! Number ${payload.attachment_id}!*\n`,
-                                                        `*Excellent! Number ${payload.attachment_id}! I knew it!*\n`,
-                                                    ]
-                                                ][vote][Math.floor(Math.random() * 3)];
-                                            })(action.value),
-                                            ts: payload.message_ts,
-                                        });
-                                    }
-                                )
-                            }
-                        );
-                    }
+                    voteChanged = addVote(doc);
+                } else {
+                    voteChanged = revokeVote(doc);
+                }
+                if (voteChanged) {
+                    db.discussions.update(
+                        {status: statuses.active},
+                        doc,
+                        (err, updCount) => {
+                            console.log('updated', updCount, doc);
+                            db.topics.update(
+                                {_id: action.name},
+                                changeVotes(action.value),
+                                (err, updated) => {
+                                    console.log(`${updated} topic updated [${action.name}]`);
+                                    showAgenda(payload.channel.id, payload.user.id, {
+                                        text: ((vote) => {
+                                            return [
+                                                [
+                                                    `*Number ${payload.attachment_id} - booo!..*\n`,
+                                                    `*Yeah... Number ${payload.attachment_id} isn't good enough...*\n`,
+                                                    `*Number ${payload.attachment_id}! Must die!*\n`,
+                                                ],
+                                                [
+                                                    `*Number ${payload.attachment_id}! Good choice!*\n`,
+                                                    `*Sold! Number ${payload.attachment_id}!*\n`,
+                                                    `*Excellent! Number ${payload.attachment_id}! I knew it!*\n`,
+                                                ]
+                                            ][vote][Math.floor(Math.random() * 3)];
+                                        })(action.value),
+                                        ts: payload.message_ts,
+                                    });
+                                }
+                            )
+                        }
+                    );
                 }
             }
         );
