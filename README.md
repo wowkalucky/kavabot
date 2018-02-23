@@ -7,16 +7,16 @@
 - shared app (SSL);
 
 ### Tech stack: alternatives
-- node! | NEDB | [node-slack-sdk](https://github.com/slackapi/node-slack-sdk)
+- **node! | NEDB | [node-slack-sdk](https://github.com/slackapi/node-slack-sdk)**
 - python? | SQL ? | slackclient
 
 ### Tools:
-- message buttons;
-- incoming webhooks;
 - slash commands;
 - dialogs;
-- permalinks;
+- message buttons;
 - message threads;
+- incoming webhooks;
+- permalinks;
 
 ### Slack APIs:
 - Events API - the new one: subscription model (user activities);
@@ -38,7 +38,7 @@
 - Backlog - cumulative not discussed Topics from previous Discussions;
 - Agenda - count of top-voted Topics (agenda_scope);
 
-### Roles:
+### Roles [TODO]:
 - Administrator:
     - full control;
 - Moderator:
@@ -47,65 +47,57 @@
     - passive user;
 
 ### General defaults:
-- quorum: 5;
+- quorum: 5; [TODO]
 - votes_count: 2;
 - agenda_scope: 3;
-- deadline: 60 min;
+- deadline: 60 min; [TODO]
 
-- topic_categories: [cool, hot]
-- secret_voting: true;
-- secret_proposal: false;
-- send_notifications: true;
+- topic_categories: cool, hot
+- anonym_voting: true;  [TODO]
+- anonym_proposal: false;   [TODO]
+- send_notifications: true; [TODO]
 
 ### Flow (Status):
 - TODO - to discuss (Backlog);
 - IN PROGRESS - in discussing;
 - DONE - discussed (Archive);
 
+
+## DEV PLAN
+
 ### Features:
-1) Creating (removing, closing) Discussion;
 
-    - initDiscussion();
-    - closeDiscussion();
+-1) ~~Get familiar with Slack tools;~~
 
-2) Adding (editing, removing) Topics to Discussion;
+0) ~~Define core data model;~~
 
-    - Discussion.addTopic();
-    - Discussion.editTopic(id);
-    - Discussion.removeTopic(id);
-    - Topics submission deadline;
+1) ~~Creating~~ (removing, closing) Discussion;
 
-3) Voting for Topics;
-    - Topic.vote();
-    - Topic.unvote();
+2) ~~Adding~~ (editing, removing) Topics to Discussion;
 
-4) Defining (voting closing and publishing) discussion Agenda (auto);
+3) ~~Voting (revoking) for Topics;~~
+
+4) Agenda announcement (voting closing and publishing) (auto);
 
     - Agenda => [Topic#1, Topic#2, Topic#3]
 
 5) Moving Topics within the Flow;
 
-    - Topic.changeStatus(status);
-
 6) Metrics: (?)
 
-    - participants count;
-    - user activity (proposed topics | interesing/hot);
-    - activity rating;
+- participants count;
+- user activity (proposed topics | ~~interesing/hot~~);
+- activity rating;
 
-7) Adding Topics to Backlog;
-
-    - Topic.postpone();
+7) ~~Adding Topics to Backlog;~~
 
 8) Adding Topic to Archive;
-
-    - Topic.archive();
 
 9) Tags: (?)
 
 10) Notifications:
 
-	- Discussion invitation (participation confirm + current settings + Backlog ref);
-	- new Topic added;
-	- defined Agenda (manual, deadline);
-	- Discussion.summary (links to video, photo, text);
+- Discussion invitation (participation confirm + current settings + Backlog ref);
+- new Topic added;
+- defined Agenda (manual, deadline);
+- Discussion.summary (links to video, photo, text);
