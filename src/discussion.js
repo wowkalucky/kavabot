@@ -16,7 +16,15 @@ const formatSuccessDiscussionMessage = (day, time, place) => ({
     '\n\n FYI, here is current Agenda:'
 });
 
-// TODO: date/time handling
+const getNextFriday = (time) => {
+    const d = new Date();
+    d.setDate(d.getDate() + (5 + 7 - d.getDay()) % 7);
+    if (time) {
+        d.setTime(time);
+    }
+    return d
+};
+
 const initDiscussionDialog = JSON.stringify({
     "callback_id": "init_discussion",
     "title": "New LeanCofee discussion",
@@ -27,7 +35,7 @@ const initDiscussionDialog = JSON.stringify({
             "label": "Pick the day",
             "name": "discussion_day",
             "hint": "When will it happen? Don't change it, for now ;)",
-            "value": discussion.defaults.day,
+            "value": `${getNextFriday().toLocaleDateString()} | This Friday!`,
         },
         {
             "type": "select",
@@ -62,37 +70,52 @@ const initDiscussionDialog = JSON.stringify({
     ]
 });
 
-const getNextFriday = () => '2018-02-16';  // TODO: smarter
-
 const initDiscussion = (options) => {
-    console.log('Gathering Backlog topics...');
-    db.topics.find({status: statuses.idle}, (err, qs) => {
-        const backlogIds = qs.map((topic) => topic._id);
+    console.log('[initDiscussion]');
+    const dateStr = options.discussion_day.split(' | ')[0];
+    const dateTime = new Date(dateStr);
+    dateTime.setUTCHours(options.discussion_time.split(':')[0]);
 
-        console.log('Creating new Discussion...');
-        db.discussions.insert({
-                day: options.discussion_day === discussion.defaults.day ? getNextFriday() : options.day,
-                time: options.discussion_time,
-                place: options.discussion_place,
-                status: statuses.active,
-                agenda: backlogIds,
-                votes: {},
-            },
-            (err, newDiscussion) => {
-                console.log('Activating Backlog...');
-                db.topics.update(
-                    {status: statuses.idle},
-                    {$set: {status: statuses.active, discussion: newDiscussion._id}},
-                    {}, (err, numActivated) => {
-                        console.log(`${numActivated} Backlog topics activated...`);
-                    }
-                );
-            });
-    });
+    console.log('Creating new Discussion...');
+    db.discussions.insert(
+        {
+            day: dateStr, // TODO: optional any date
+            time: options.discussion_time,
+            dateTime: dateTime,
+            place: options.discussion_place,
+            status: statuses.active,
+            agenda: [],
+            votes: {},
+        },
+        (err, newDiscussion) => {
+            console.log('Activating Backlog...');
+            db.topics.update(
+                {status: statuses.idle},
+                {$set: {status: statuses.active, discussion: newDiscussion._id}},
+                {}, (err, numActivated) => {
+                    console.log(`${numActivated} Backlog topics activated...`);
+                }
+            );
+        });
+    // });
 };
 
-// TODO:
-// const closeDiscussion;
+// TODO: closeDiscussion;
+const closeDiscussion = () => {
+    "use strict";
+    console.log('[closeDiscussion]');
+
+    db.discussions.update(
+        {status: statuses.active},
+        {$set: {status: statuses.archived}},
+        (err, numArch) => {
+            console.log(`${numArch} Discussion archived...`);
+        //    for all topic in Agenda -> change status to Archived, age to old and count totalVotes
+
+        }
+    );
+};
+
 
 const showAgenda = (channelId, userId, message) => {
     console.log('[showAgenda]');
