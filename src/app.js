@@ -1,7 +1,6 @@
 const express = require('express');
 const request = require('request');
 const bodyParser = require('body-parser');
-const { WebClient } = require('@slack/client');
 const { slackMessages } = require('./actions');
 require('dotenv').config();
 
@@ -10,8 +9,6 @@ const {lcInit, lcTopic, lcVote} = require('./commands');
 
 const clientId = process.env.APP_CLIENT_ID;
 const clientSecret = process.env.APP_CLIENT_SECRET;
-// const slackMessages = createMessageAdapter(process.env.VERIFICATION_TOKEN);
-const web = new WebClient(process.env.WEB_API_TOKEN);
 
 // Express web server initialization:
 const PORT=8822;
@@ -22,10 +19,8 @@ app.use(bodyParser.urlencoded({extended: true}));  // to support URL-encoded bod
 
 // Server's launch:
 app.listen(PORT, function () {
-    console.log("Example app listening on port " + PORT);
+    console.log("Listening on port " + PORT);
 });
-
-
 
 // interactive commands endpoint:
 app.use('/intercom', slackMessages.expressMiddleware());
@@ -45,7 +40,8 @@ app.get('/', function(req, res) {
     res.send('Ngrok is working! Path Hit: ' + req.url);
 });
 
-// This route handles get request to a /oauth endpoint. We'll use this endpoint for handling the logic of the Slack oAuth process behind our app.
+// This route handles get request to a /oauth endpoint.
+// We'll use this endpoint for handling the logic of the Slack oAuth process behind our app.
 app.get('/oauth', function(req, res) {
     // When a user authorizes an app, a code query parameter is passed on the oAuth endpoint.
     // If that code is not there, we respond with an error message

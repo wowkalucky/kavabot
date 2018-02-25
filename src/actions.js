@@ -17,7 +17,7 @@ slackMessages.action('init_discussion', (payload) => {
     // {
     //     type: 'dialog_submission',
     //     submission: {
-    //         discussion_day: 'This Friday!',
+    //         discussion_day: '2018-02-02 | This Friday!', ?
     //         discussion_time: '12:00',
     //         discussion_place: 'Basement Hall'
     //     },
@@ -44,7 +44,6 @@ slackMessages.action('init_discussion', (payload) => {
 
 slackMessages.action('init_topic', (payload) => {
     console.log('[action:init_topic]');
-    // console.log('payload', payload);
 
     initTopic({
         ...payload.submission,
@@ -73,25 +72,8 @@ slackMessages.action('init_topic', (payload) => {
 });
 
 slackMessages.action('vote_topic', (payload) => {
-    console.log('`vote_topic` action');
+    console.log('action:vote_topic');
     const action = payload.actions[0];
-    // console.log('payload', payload);
-    // payload {
-    //     type: 'interactive_message',
-    //     actions: [ { name: '8uWrogIHZlPs2ED1', type: 'button', value: '1' } ],
-    //     callback_id: 'vote_topic',
-    //     team: { id: 'T6K8HJZQW', domain: 'slatyne' },
-    //     channel: { id: 'C94H16BPX', name: 'botex' },
-    //     user: { id: 'U6J9K847M', name: 'wowkalucky' },
-    //     action_ts: '1518990009.973617',
-    //     message_ts: '1518989894.000022',
-    //     attachment_id: '5',
-    //     token: '8wIvXEnO3Dp0VB1yd2kljBOP',
-    //     is_app_unfurl: false,
-    //     response_url: 'https://hooks.slack.com/actions/T6K8HJZQW/317012342450/63SFMDvUfBrE1DFhkTaJQo8L',
-    //     trigger_id: '317012342498.223289645846.0c7575f099b640d8250ef2f33ee921db'
-    // }
-
     const voteIt = (payload) => {
         "use strict";
         console.log('[voteIt]');
@@ -189,9 +171,6 @@ slackMessages.action('show_backlog', (payload) => {
 
     if (action.value === 'backlog') {
         console.log('Seeing Backlog...');
-        // showBacklog(payload.channel.id, {
-        //     text: `*The Backlog*\n\nThese Topics weren't discussed yet.\n`
-        // });
         showTopics(payload.channel.id, payload.user.id)
     }
 });
