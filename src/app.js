@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const { slackMessages } = require('./actions');
 require('dotenv').config();
 
-const {lcInit, lcTopic, lcVote} = require('./commands');
+const {lcInit, lcFreeze, lcTopic, lcVote} = require('./commands');
 
 
 const clientId = process.env.APP_CLIENT_ID;
@@ -72,5 +72,6 @@ app.get('/oauth', function(req, res) {
 
 // Actions URLS:
 app.post(...lcInit);
+app.post(...lcFreeze);
 app.post(...lcTopic);
 app.post(...lcVote);

@@ -4,7 +4,7 @@ require('dotenv').config();
 
 const db = require('./storage');
 const {general, statuses} = require('./options');
-const {initDiscussion, formatSuccessDiscussionMessage, showAgenda} = require('./discussion');
+const {initDiscussion, formatSuccessDiscussionMessage, showVoteList} = require('./discussion');
 const {initTopic, formatSuccessTopicMessage, showTopics} = require('./topic');
 
 
@@ -37,7 +37,7 @@ slackMessages.action('init_discussion', (payload) => {
         payload.submission.discussion_time,
         payload.submission.discussion_place
     );
-    showAgenda(payload.channel.id, payload.user.id, message);
+    showVoteList(payload.channel.id, payload.user.id, message);
 
     return {}
 });
@@ -115,7 +115,7 @@ slackMessages.action('vote_topic', (payload) => {
         }
 
         db.discussions.findOne(
-            {status: statuses.active},
+            {status: statuses.idle},
             (err, doc) => {
                 let voteChanged = null;
                 if (parseInt(action.value)) {
@@ -125,7 +125,7 @@ slackMessages.action('vote_topic', (payload) => {
                 }
                 if (voteChanged) {
                     db.discussions.update(
-                        {status: statuses.active},
+                        {status: statuses.idle},
                         doc,
                         (err, updCount) => {
                             console.log('updated', updCount, doc);
@@ -134,7 +134,7 @@ slackMessages.action('vote_topic', (payload) => {
                                 changeVotes(action.value),
                                 (err, updated) => {
                                     console.log(`${updated} topic updated [${action.name}]`);
-                                    showAgenda(payload.channel.id, payload.user.id, {
+                                    showVoteList(payload.channel.id, payload.user.id, {
                                         text: ((vote) => {
                                             return [
                                                 [

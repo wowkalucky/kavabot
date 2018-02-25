@@ -11,6 +11,11 @@ const initDiscussionMessage = {
     'text': 'Hurray! Initiating new discussion...'
 };
 
+const closeDiscussionMessage = {
+    'text': 'Closing current discussion... ' +
+    '\nThat it for now! Topics from Agenda are being marked as Archived for the history.'
+};
+
 const formatSuccessDiscussionMessage = (day, time, place) => ({
     text: `Yuhoo! Can't wait for it!..\nSee ya ${day} at ${time} in the ${place}!` +
     '\n\n FYI, here is current Agenda:'
@@ -83,7 +88,7 @@ const initDiscussion = (options) => {
             time: options.discussion_time,
             dateTime: dateTime,
             place: options.discussion_place,
-            status: statuses.active,
+            status: statuses.idle,
             agenda: [],
             votes: {},
         },
@@ -116,9 +121,8 @@ const closeDiscussion = () => {
     );
 };
 
-
-const showAgenda = (channelId, userId, message) => {
-    console.log('[showAgenda]');
+const showVoteList = (channelId, userId, message) => {
+    console.log('[showVoteList]');
 
     function makeActions(topic, userVotes) {
         "use strict";
@@ -153,13 +157,13 @@ const showAgenda = (channelId, userId, message) => {
 
     db.topics
         .find({status: {$ne: statuses.closed}})
-        .sort({age: 1, votes: -1, totalVotes: -1})
+        .sort({votes: -1, age: 1, totalVotes: -1})
         .exec((err, topics) => {
             db.discussions.findOne(
-                {"status": statuses.active},
+                {"status": statuses.idle},
                 (err, doc) => {
                     const userVotes = doc.votes[userId];
-                    const agenda = topics.map((topic, i) => {
+                    const backlog = topics.map((topic, i) => {
                         const fresh = topic.age === ages.new;
                         const hot = topic.votes >= 10;
                         const warm = 10 > topic.votes && topic.votes > 5;
@@ -178,22 +182,91 @@ const showAgenda = (channelId, userId, message) => {
                     });
                     if ('ts' in message) {
                         console.log('updating message...');
-                        web.chat.update(message.ts, channelId, message.text, {attachments: agenda});
+                        web.chat.update(message.ts, channelId, message.text, {attachments: backlog});
                     } else {
                         console.log('posting message...');
-                        web.chat.postMessage(channelId, message.text, {attachments: agenda});
+                        web.chat.postMessage(channelId, message.text, {attachments: backlog});
                     }
                 }
             );
+        }
+    );
+};
 
+const showAgenda = (channelId, message) => {
+    console.log('[showAgenda]');
 
-        });
+    db.discussions.findOne(
+        {status: statuses.active},
+        (err, doc) => {
+            "use strict";
+            db.topics.find(
+                {"_id": {$in: doc.agenda}},
+                (err, topics) => {
+                    console.log(`Found ${topics.length} topics for Agenda`);
+                    const agenda = topics.map((topic) => {
+                        const fresh = topic.age === ages.new;
+                        const hot = topic.votes >= 10;
+                        const warm = 10 > topic.votes && topic.votes > 5;
+                        return {
+                            // "callback_id": "vote_topic",
+                            "fallback": topic.title,
+                            "color": "good",
+                            "title": `${fresh ? ':new: ' : ''}${hot ? ':fire: ' : ''}${warm ? ':hotsprings: ' : ''}${
+                                topic.title}`,
+                            "title_link": topic.url,
+                            "text": topic.description,
+                            "footer": `<@${topic.author.id}>  |  ${topic.votes}`,
+                            "footer_icon": "https://avatars3.githubusercontent.com/u/11388447?s=200&v=4",
+                            "ts": topic.ts,
+                        }
+                    });
+                    web.chat.postMessage(channelId, message.text, {attachments: agenda});
+                }
+            )
+        }
+    );
+};
+
+const composeAgenda = (notifyCb, channelId, agendaScope) => {
+    "use strict";
+    console.log('[composeAgenda]');
+    const scope = agendaScope || general.agendaScope;
+    db.topics
+        .find({status: {"$ne": statuses.archived}}, {_id: 1})
+        .sort({votes: -1, age: 1, totalVotes: -1})
+        .limit(scope)
+        .exec((err, topics) => {
+            const agendaIds = topics.map((topic) => topic._id);
+            console.log('agendaIds', agendaIds);
+            db.discussions.update(
+                {status: statuses.idle},
+                {"$set": {status: statuses.active, agenda: agendaIds}},
+                (err, countUpd) => {
+                    console.log(`New Agenda set to: ${agendaIds}`);
+                    notifyCb(channelId);
+                }
+            )
+        }
+    )
+};
+
+const checkDeadline = (deadLine) => {
+    "use strict";
+    console.log('[checkDeadline]');
+    // is it Deadline to compose an Agenda?
+    // TODO: count participants
+
 };
 
 module.exports = {
     initDiscussion,
     initDiscussionMessage,
+    closeDiscussionMessage,
     initDiscussionDialog,
     formatSuccessDiscussionMessage,
+    showVoteList,
     showAgenda,
+    composeAgenda,
+    closeDiscussion,
 };

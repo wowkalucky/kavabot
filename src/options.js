@@ -14,7 +14,7 @@ module.exports = {
     statuses: {
         idle: "idle",
         active: "active",
-        closed: "closed"
+        archived: "archived"
     },
     ages: {
         old: "old",

@@ -2,7 +2,7 @@ const {WebClient} = require('@slack/client');
 
 const db = require('./storage');
 const {statuses, ages, general} = require('./options');
-const {showAgenda} = require('./discussion');
+const {showVoteList} = require('./discussion');
 
 
 const web = new WebClient(process.env.WEB_API_TOKEN);
@@ -67,7 +67,7 @@ const formatSuccessTopicMessage = (name) => (
 
 const initTopic = (options) => {
     console.log('Fetching active Discussion...');
-    db.discussions.findOne({status: statuses.active}, (err, qs) => {
+    db.discussions.findOne({status: statuses.idle}, (err, qs) => {
         const discussionOpened = !!qs;
         console.log('New topic creation...');
         db.topics.insert({
@@ -81,18 +81,7 @@ const initTopic = (options) => {
             totalVotes: 0,
             ts: options.ts,
             discussion: discussionOpened ? qs._id : null,
-        },
-        (err, newTopic) => {
-            console.log(`Adding new Topic to ${discussionOpened ? 'Agenda' : 'Backlog'}...`);
-            if (discussionOpened) {
-                db.discussions.update(
-                    {$set: {agenda: [...qs.agenda, newTopic._id]}},
-                    {}, (err, numUpdated) => {
-                        console.log(`New topic added to Agenda: ${newTopic.title}`);
-                    }
-                )}
-            }
-        );
+        });
     });
 };
 
@@ -126,11 +115,12 @@ const showBacklog = (channelId, message) => {
 
 const showTopics = (channelId, userId, message) => {
     "use strict";
+    console.log('[showTopics]');
     db.discussions.findOne(
-        {status: statuses.active},
+        {status: statuses.idle},
         (err, doc) => {
             if (doc) {
-                showAgenda(channelId, userId, message || voteMessage);
+                showVoteList(channelId, userId, message || voteMessage);
             } else {
                 showBacklog(channelId, message || backlogMessage);
             }
