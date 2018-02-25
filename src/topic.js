@@ -93,7 +93,7 @@ const showBacklog = (channelId, message) => {
         .find({status: statuses.idle})
         .sort({age: 1, totalVotes: -1})
         .exec((err, topics) => {
-            const backlog = topics.map((topic) => {
+            let backlog = topics.map((topic) => {
                 const fresh = topic.age === ages.new;
                 return {
                     "callback_id": "show_backlog",
@@ -107,6 +107,14 @@ const showBacklog = (channelId, message) => {
                     "ts": topic.ts,
                 }
             });
+            console.log('showing Backlog...', backlog.length);
+            if (!backlog.length) {
+                backlog = [{
+                    "fallback": "Empty",
+                    "title": "Backlog is empty for now",
+                    "color": "info",
+                }];
+            }
             console.log('posting message...');
             web.chat.postMessage(channelId, message.text, {attachments: backlog});
         }
