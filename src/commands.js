@@ -3,7 +3,9 @@
 require('dotenv').config();
 const {WebClient} = require('@slack/client');
 
-const {newAgendaNotify} = require('./notofications');
+const {newAgendaNotify} = require('./notifications');
+const {botOpts} = require('./options');
+const {getBotUsersPromise, getTargetChannelIdPromise} = require('./utils');
 const {
     initDiscussionMessage, closeDiscussionMessage, initDiscussionDialog, composeAgenda, closeDiscussion
 } = require('./discussion');
@@ -14,9 +16,11 @@ const {
 
 const web = new WebClient(process.env.WEB_API_TOKEN);
 
+
 module.exports = {
     // Discussion initialization:
     lcInit: ['/discussion/init', function(req, res) {
+        console.log('command:lc-init');
         // console.log(req.body);
         // BODY:
         // {
@@ -34,31 +38,41 @@ module.exports = {
         // }
 
         const triggerId = req.body.trigger_id;
+        if (req.body.channel_name !== botOpts.targetChannel.name) {
+            res.status(200).send(`This command is available from '${botOpts.targetChannel.name}' channel only.`);
+            return
+        }
         res.status(200).send(initDiscussionMessage);
         web.dialog.open(initDiscussionDialog, triggerId);
     }],
+
     // Discussion activation (manual deadline):
     lcFreeze: ['/discussion/activate', function(req, res) {
         console.log('command:lc-freeze');
-        // const triggerId = req.body.trigger_id;
         res.status(200).send({text: 'Freezing Discussion...'});
-        composeAgenda(newAgendaNotify, req.body.channel_id);
+        // getBotUsersPromise().then((res) => console.log(res));
+        // getTargetChannelIdPromise('botex').then((res) => console.log(res));
+        composeAgenda(newAgendaNotify, req.body.channel_id, req.body.user_id);
     }],
+
      // Discussion archivation:
     lcClose: ['/discussion/close', function(req, res) {
         console.log('command:lc-close');
         // const triggerId = req.body.trigger_id;
         res.status(200).send(closeDiscussionMessage);
-        closeDiscussion();
+        console.log('Pretending this is happening...')
+        // closeDiscussion();
         //TODO: ^^
         // web.dialog.open(initDiscussionDialog, triggerId);
     }],
+
     // Topic initialization:
     lcTopic: ['/topic/init', function(req, res) {
         const triggerId = req.body.trigger_id;
         res.status(200).send(initTopicMessage);
         web.dialog.open(initTopicDialog, triggerId);
     }],
+
     // Perform Voting:
     lcVote: ['/topic/vote', function(req, res) {
         console.log('command:lc-vote');

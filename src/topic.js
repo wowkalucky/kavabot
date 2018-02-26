@@ -91,7 +91,7 @@ const showBacklog = (channelId, message) => {
 
     db.topics
         .find({status: statuses.idle})
-        .sort({age: 1, totalVotes: -1})
+        .sort({age: 1, totalVotes: -1, ts: -1})
         .exec((err, topics) => {
             let backlog = topics.map((topic) => {
                 const fresh = topic.age === ages.new;
@@ -130,7 +130,7 @@ const showTopics = (channelId, userId, message) => {
             if (doc) {
                 showVoteList(channelId, userId, message || voteMessage);
             } else {
-                showBacklog(channelId, message || backlogMessage);
+                showBacklog(userId, message || backlogMessage);
             }
         }
     );

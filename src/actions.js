@@ -4,6 +4,7 @@ require('dotenv').config();
 
 const db = require('./storage');
 const {general, statuses} = require('./options');
+const {newDiscussionNotify} = require('./notifications');
 const {initDiscussion, formatSuccessDiscussionMessage, showVoteList} = require('./discussion');
 const {initTopic, formatSuccessTopicMessage, showTopics} = require('./topic');
 
@@ -39,6 +40,11 @@ slackMessages.action('init_discussion', (payload) => {
     );
     showVoteList(payload.channel.id, payload.user.id, message);
 
+    if (general.notifications) {
+        console.log('notifying...');
+        newDiscussionNotify(payload.submission);
+    }
+
     return {}
 });
 
@@ -53,7 +59,7 @@ slackMessages.action('init_topic', (payload) => {
 
     // send success message:
     web.chat.postMessage(
-        payload.channel.id,
+        payload.user.id,
         formatSuccessTopicMessage(payload.user.name),
         {attachments: [{
             "callback_id": "show_backlog",

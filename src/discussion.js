@@ -1,7 +1,7 @@
 const {WebClient} = require('@slack/client');
 
 const db = require('./storage');
-const {general, discussion, statuses, ages} = require('./options');
+const {general, discussion, statuses, ages, bot} = require('./options');
 
 
 const web = new WebClient(process.env.WEB_API_TOKEN);
@@ -97,12 +97,12 @@ const initDiscussion = (options) => {
             db.topics.update(
                 {status: statuses.idle},
                 {$set: {status: statuses.active, discussion: newDiscussion._id}},
-                {}, (err, numActivated) => {
+                (err, numActivated) => {
                     console.log(`${numActivated} Backlog topics activated...`);
                 }
             );
-        });
-    // });
+        }
+    );
 };
 
 // TODO: closeDiscussion;
@@ -185,7 +185,7 @@ const showVoteList = (channelId, userId, message) => {
                         web.chat.update(message.ts, channelId, message.text, {attachments: backlog});
                     } else {
                         console.log('posting message...');
-                        web.chat.postMessage(channelId, message.text, {attachments: backlog});
+                        web.chat.postMessage(userId, message.text, {attachments: backlog});
                     }
                 }
             );
@@ -193,13 +193,18 @@ const showVoteList = (channelId, userId, message) => {
     );
 };
 
-const showAgenda = (channelId, message) => {
+const showAgenda = (channelId, userId, message) => {
     console.log('[showAgenda]');
 
     db.discussions.findOne(
         {status: statuses.active},
         (err, doc) => {
             "use strict";
+            if (!doc) {
+                console.log('no active discussion', channelId, userId);
+                web.chat.postEphemeral(channelId, "Sorry, there is no active Discussion!", userId);
+                return
+            }
             db.topics.find(
                 {"_id": {$in: doc.agenda}},
                 (err, topics) => {
@@ -209,7 +214,6 @@ const showAgenda = (channelId, message) => {
                         const hot = topic.votes >= 10;
                         const warm = 10 > topic.votes && topic.votes > 5;
                         return {
-                            // "callback_id": "vote_topic",
                             "fallback": topic.title,
                             "color": "good",
                             "title": `${fresh ? ':new: ' : ''}${hot ? ':fire: ' : ''}${warm ? ':hotsprings: ' : ''}${
@@ -221,6 +225,7 @@ const showAgenda = (channelId, message) => {
                             "ts": topic.ts,
                         }
                     });
+                    console.log('test', channelId, message.text, {attachments: agenda});
                     web.chat.postMessage(channelId, message.text, {attachments: agenda});
                 }
             )
@@ -228,7 +233,7 @@ const showAgenda = (channelId, message) => {
     );
 };
 
-const composeAgenda = (notifyCb, channelId, agendaScope) => {
+const composeAgenda = (notifyCb, channelId, userId, agendaScope) => {
     "use strict";
     console.log('[composeAgenda]');
     const scope = agendaScope || general.agendaScope;
@@ -244,7 +249,7 @@ const composeAgenda = (notifyCb, channelId, agendaScope) => {
                 {"$set": {status: statuses.active, agenda: agendaIds}},
                 (err, countUpd) => {
                     console.log(`New Agenda set to: ${agendaIds}`);
-                    notifyCb(channelId);
+                    notifyCb(userId);
                 }
             )
         }
