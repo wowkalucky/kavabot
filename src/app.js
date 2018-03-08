@@ -69,9 +69,6 @@ app.get('/oauth', function(req, res) {
         res.send({"Error": "Looks like we're not getting code."});
         console.log("Looks like we're not getting code.");
     } else {
-        // If it's there...
-        // "{\"ok\":true,\"access_token\":\"xoxp-223289645846-222325276259-310245498978-9910c5676c8ae09bc38f52a18a847ed4\",\"scope\":\"identify,bot,commands\",\"user_id\":\"U6J9K847M\",\"team_name\":\"Slatyne Online\",\"team_id\":\"T6K8HJZQW\",\"bot\":{\"bot_user_id\":\"U94AQHUFP\",\"bot_access_token\":\"xoxb-310364606533-qIOvddqjoxi5bVvYKFYKP2RY\"}}"
-
         // We'll do a GET call to Slack's `oauth.access` endpoint, passing our app's client ID, client secret,
         // and the code we just got as query parameters.
         request({

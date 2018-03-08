@@ -21,22 +21,6 @@ module.exports = {
     // Discussion initialization:
     lcInit: ['/discussion/init', function(req, res) {
         console.log('command:lc-init');
-        // console.log(req.body);
-        // BODY:
-        // {
-        //   token: '8wIvXEnO3Dp0VB1yd2kljBOP',
-        //   team_id: 'T6K8HJZQW',
-        //   team_domain: 'slatyne',
-        //   channel_id: 'C94H16BPX',
-        //   channel_name: 'botex',
-        //   user_id: 'U6J9K847M',
-        //   user_name: 'wowkalucky',
-        //   command: '/lc-init',
-        //   text: '',
-        //   response_url: 'https://hooks.slack.com/commands/T6K8HJZQW/313486814977/6uHO5oycxjkA3bcjIqS2xt4g',
-        //   trigger_id: '315091880999.223289645846.0f1bc7d6b4ff7ab92897ed3f6914428b'
-        // }
-
         const triggerId = req.body.trigger_id;
         if (req.body.channel_name !== botOpts.targetChannel.name) {
             res.status(200).send(`This command is available *from '${botOpts.targetChannel.name}' channel only*.`);
@@ -50,8 +34,6 @@ module.exports = {
     lcFreeze: ['/discussion/activate', function(req, res) {
         console.log('command:lc-freeze');
         res.status(200).send({text: 'Freezing Discussion...'});
-        // getBotUsersPromise().then((res) => console.log(res));
-        // getTargetChannelIdPromise('botex').then((res) => console.log(res));
         composeAgenda(newAgendaNotify, req.body.channel_id, req.body.user_id);
     }],
 
@@ -78,3 +60,20 @@ module.exports = {
         showTopics(req.body.channel_id, req.body.user_id)
     }]
 };
+
+
+// COMMAND PAYLOAD example:
+
+// {
+//   token: '8wIvXEnO3Dp0VB1yd2kljBOP',
+//   team_id: 'T6K8HJZQW',
+//   team_domain: 'slatyne',
+//   channel_id: 'C94H16BPX',
+//   channel_name: 'botex',
+//   user_id: 'U6J9K847M',
+//   user_name: 'wowkalucky',
+//   command: '/lc-init',
+//   text: '',
+//   response_url: 'https://hooks.slack.com/commands/T6K8HJZQW/313486814977/6uHO5oycxjkA3bcjIqS2xt4g',
+//   trigger_id: '315091880999.223289645846.0f1bc7d6b4ff7ab92897ed3f6914428b'
+// }

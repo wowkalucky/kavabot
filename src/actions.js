@@ -16,22 +16,6 @@ const web = new WebClient(process.env.WEB_API_TOKEN);
 const slackMessages = createMessageAdapter(process.env.VERIFICATION_TOKEN);
 
 slackMessages.action('init_discussion', (payload) => {
-    // console.log('payload', payload);
-    // PAYLOAD:
-    // {
-    //     type: 'dialog_submission',
-    //     submission: {
-    //         discussion_day: '2018-02-02 | This Friday!', ?
-    //         discussion_time: '12:00',
-    //         discussion_place: 'Basement Hall'
-    //     },
-    //     callback_id: 'init_discussion',
-    //     team: { id: 'T6K8HJZQW', domain: 'slatyne' },
-    //     user: { id: 'U6J9K847M', name: 'wowkalucky' },
-    //     channel: { id: 'C94H16BPX', name: 'botex' },
-    //     action_ts: '1518475563.667618',
-    //     token: '8wIvXEnO3Dp0VB1yd2kljBOP'
-    // }
 
     initDiscussion(payload.submission);
 
@@ -187,3 +171,21 @@ slackMessages.action('show_backlog', (payload) => {
 module.exports = {
     slackMessages
 };
+
+
+ // ACTION PAYLOAD example:
+
+// {
+//     type: 'dialog_submission',
+//     submission: {
+//         discussion_day: '2018-02-02 | This Friday!', ?
+//         discussion_time: '12:00',
+//         discussion_place: 'Basement Hall'
+//     },
+//     callback_id: 'init_discussion',
+//     team: { id: 'T6K8HJZQW', domain: 'slatyne' },
+//     user: { id: 'U6J9K847M', name: 'wowkalucky' },
+//     channel: { id: 'C94H16BPX', name: 'botex' },
+//     action_ts: '1518475563.667618',
+//     token: '8wIvXEnO3Dp0VB1yd2kljBOP'
+// }
