@@ -3,6 +3,8 @@
 
 const express = require('express');
 const request = require('request');
+const helmet = require('helmet');
+
 const bodyParser = require('body-parser');
 const { slackMessages } = require('./actions');
 require('dotenv').config();
@@ -17,7 +19,10 @@ const clientSecret = process.env.APP_CLIENT_SECRET;
 const PORT=8822;
 const app = express();
 
-// middleware parsers:
+
+// Middlewares:
+app.use(helmet());
+// parsers:
 app.use(bodyParser.json());                        // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({extended: true}));  // to support URL-encoded bodies
 
