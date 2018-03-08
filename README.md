@@ -58,9 +58,9 @@
 - send_notifications: true; [TODO]
 
 ### Flow (Status):
-- TODO - to discuss (Backlog);
-- IN PROGRESS - in discussing;
-- DONE - discussed (Archive);
+- TODO [idle] - to discuss (Backlog);
+- IN PROGRESS [active] - in discussing;
+- DONE [archived] - discussed (Archive);
 
 
 ## DEV PLAN
@@ -77,11 +77,11 @@
 
 3) ~~Voting (revoking) for Topics;~~
 
-4) Agenda announcement (voting closing and publishing) (auto);
+4) ~~Agenda announcement~~ (voting closing and publishing) (auto);
 
     - Agenda => [Topic#1, Topic#2, Topic#3]
 
-5) Moving Topics within the Flow;
+5) ~~Moving Topics within the Flow~~;
 
 6) Metrics: (?)
 
@@ -91,7 +91,7 @@
 
 7) ~~Adding Topics to Backlog;~~
 
-8) Adding Topic to Archive;
+8) ~~Adding Topic to Archive;~~
 
 9) Tags: (?)
 
@@ -99,5 +99,5 @@
 
 - Discussion invitation (participation confirm + current settings + Backlog ref);
 - new Topic added;
-- defined Agenda (manual, deadline);
-- Discussion.summary (links to video, photo, text);
+- defined Agenda (~~manual~~, deadline);
+- Discussion history | summary (links to video, photo, text);
