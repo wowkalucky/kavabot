@@ -36,7 +36,7 @@ app.use('/intercom', slackMessages.expressMiddleware());
 
 // Ngrok test route:
 app.get('/', function(req, res) {
-    res.send('Ngrok is working! Path Hit: ' + req.url);
+    res.send('KAVABOT is online!\nPath Hit: ' + req.url);
 });
 
 // Actions URLS:

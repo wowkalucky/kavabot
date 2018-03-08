@@ -3,8 +3,8 @@ require('dotenv').config();
 module.exports = {
     general: {
         quorum: 5,
-        agendaScope: 3,
-        votesCount: 2,
+        agendaScope: process.env.AGENDA_SCOPE || 3,
+        votesCount: process.env.VOTE_COUNT || 2,
         notifications: true,
     },
     discussion: {
@@ -27,7 +27,7 @@ module.exports = {
         id: process.env.BOT_USER_ID,
         targetChannel: {
             id: process.env.TARGET_CHANNEL_ID,
-            name: "botex",
+            name: process.env.TARGET_CHANNEL_NAME || "botex",
         },
     }
 };
