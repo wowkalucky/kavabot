@@ -16,7 +16,7 @@ const clientId = process.env.APP_CLIENT_ID;
 const clientSecret = process.env.APP_CLIENT_SECRET;
 
 // Express web server initialization:
-const PORT=8822;
+const PORT= process.env.PORT || 8822;
 const app = express();
 
 
