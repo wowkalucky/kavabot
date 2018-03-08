@@ -102,7 +102,7 @@ const showBacklog = (channelId, message) => {
                     "title": `${fresh ? ':new: ' : ''} ${topic.title}`,
                     "title_link": topic.url,
                     "text": topic.description,
-                    "footer": `<@${topic.author.id}>  |  ${topic.totalVotes}`,
+                    "footer": `<@${topic.author.id}>  | ∞ (${topic.totalVotes})`,
                     "footer_icon": "https://avatars3.githubusercontent.com/u/11388447?s=200&v=4",
                     "ts": topic.ts,
                 }

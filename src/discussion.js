@@ -113,10 +113,52 @@ const closeDiscussion = () => {
     db.discussions.update(
         {status: statuses.active},
         {$set: {status: statuses.archived}},
-        (err, numArch) => {
-            console.log(`${numArch} Discussion archived...`);
-        //    for all topic in Agenda -> change status to Archived, age to old and count totalVotes
-
+        {returnUpdatedDocs: true},
+        (err, numArch, doc) => {
+            console.log(`${numArch} Discussion is being archived...`, doc);
+            if (numArch !== 1) {
+                console.warn(`Unexpected behavior! Only active Discussion should be archived: count=${numArch}`)
+            } else {
+                db.topics.update(
+                    {_id: {$in: doc.agenda}},
+                    {$set: {
+                        status: statuses.archived,
+                        age: ages.old,
+                    }},
+                    {multi: true},
+                    (err, numTopicsArchived) => {
+                        console.log(`${numTopicsArchived} from Agenda archived.`);
+                        db.topics.find(
+                            {status: {$ne: statuses.archived}},
+                            (err, docs) => {
+                                const updated = docs.map((topic) => {
+                                    console.log(`changing topic ${topic._id}`);
+                                    topic.status = statuses.idle;
+                                    topic.age = ages.old;
+                                    topic.totalVotes += topic.votes;
+                                    topic.votes = 0;
+                                    topic.discussion = null;
+                                    return topic;
+                                });
+                                db.topics.remove(
+                                    {status: {$ne: statuses.archived}},
+                                    {multi: true},
+                                    (err, numRemoved) => {
+                                        console.log(`${numRemoved} removed from DB.`);
+                                        db.topics.insert(
+                                            updated,
+                                            (err, docsInserted) => {
+                                                if (err) console.warn(err);
+                                                console.log(`${'no insertion!' && docsInserted && docsInserted.length} inserted instead to DB.`)
+                                            }
+                                        )
+                                    }
+                                )
+                            }
+                        )
+                    }
+                );
+            }
         }
     );
 };
@@ -156,7 +198,7 @@ const showVoteList = (channelId, userId, message) => {
     }
 
     db.topics
-        .find({status: {$ne: statuses.closed}})
+        .find({status: {$ne: statuses.archived}})
         .sort({votes: -1, age: 1, totalVotes: -1})
         .exec((err, topics) => {
             db.discussions.findOne(
@@ -174,7 +216,7 @@ const showVoteList = (channelId, userId, message) => {
                             "title": `${fresh ? ':new: ' : ''}${hot ? ':fire: ' : ''}${warm ? ':hotsprings: ' : ''}${topic.title}`,
                             "title_link": topic.url,
                             "text": topic.description,
-                            "footer": `<@${topic.author.id}>  |  ${topic.votes}`,
+                            "footer": `<@${topic.author.id}>  |  ${topic.votes} (${topic.totalVotes})`,
                             "footer_icon": "https://avatars3.githubusercontent.com/u/11388447?s=200&v=4",
                             "ts": topic.ts,
                             "actions": makeActions(topic, userVotes),
@@ -220,7 +262,7 @@ const showAgenda = (channelId, userId, message) => {
                                 topic.title}`,
                             "title_link": topic.url,
                             "text": topic.description,
-                            "footer": `<@${topic.author.id}>  |  ${topic.votes}`,
+                            "footer": `<@${topic.author.id}>  |  ${topic.votes} (${topic.totalVotes})`,
                             "footer_icon": "https://avatars3.githubusercontent.com/u/11388447?s=200&v=4",
                             "ts": topic.ts,
                         }

@@ -39,7 +39,7 @@ module.exports = {
 
         const triggerId = req.body.trigger_id;
         if (req.body.channel_name !== botOpts.targetChannel.name) {
-            res.status(200).send(`This command is available from '${botOpts.targetChannel.name}' channel only.`);
+            res.status(200).send(`This command is available *from '${botOpts.targetChannel.name}' channel only*.`);
             return
         }
         res.status(200).send(initDiscussionMessage);
@@ -60,14 +60,12 @@ module.exports = {
         console.log('command:lc-close');
         // const triggerId = req.body.trigger_id;
         res.status(200).send(closeDiscussionMessage);
-        console.log('Pretending this is happening...')
-        // closeDiscussion();
-        //TODO: ^^
-        // web.dialog.open(initDiscussionDialog, triggerId);
+        closeDiscussion();
     }],
 
     // Topic initialization:
     lcTopic: ['/topic/init', function(req, res) {
+        console.log('command:lc-topic');
         const triggerId = req.body.trigger_id;
         res.status(200).send(initTopicMessage);
         web.dialog.open(initTopicDialog, triggerId);

@@ -10,7 +10,7 @@ const web = new WebClient(process.env.WEB_API_TOKEN);
 
 const newAgendaNotify = (userId) => {
     const message = {
-        text: `So, <!channel>,we have the winners!\n 
+        text: `So, <!channel>, we have the winners!\n 
         Here's the Agenda for our Lean Coffee Party.\n `
     };
     getTargetChannelIdPromise(botOpts.targetChannel.name).then((channelId) => {
@@ -22,6 +22,7 @@ const newDiscussionNotify = (data) => {
     const message = {
         text: `*Attention! Увага! Achtung!*\n
             
+<!channel>
 New Lean Coffee Time is initiated!\n
 DATE: ${data.discussion_day} | TIME: ${data.discussion_time} | PLACE: ${data.discussion_place}\n
 You are welcome to submit your _awesome | ridiculous | horrible_ topics.\n
