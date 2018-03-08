@@ -208,7 +208,7 @@ const showVoteList = (channelId, userId, message) => {
                 {"status": statuses.idle},
                 (err, doc) => {
                     const userVotes = doc.votes[userId];
-                    const backlog = topics.map((topic, i) => {
+                    let backlog = topics.map((topic, i) => {
                         const fresh = topic.age === ages.new;
                         const hot = topic.votes >= 10;
                         const warm = 10 > topic.votes && topic.votes > 5;
@@ -225,6 +225,13 @@ const showVoteList = (channelId, userId, message) => {
                             "actions": makeActions(topic, userVotes),
                         }
                     });
+                    if (!backlog.length) {
+                        backlog = [{
+                            "fallback": "Empty",
+                            "title": "Backlog is empty for now",
+                            "color": "info",
+                        }];
+                    }
                     if ('ts' in message) {
                         console.log('updating message...');
                         web.chat.update(message.ts, channelId, message.text, {attachments: backlog});

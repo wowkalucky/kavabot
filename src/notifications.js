@@ -30,8 +30,8 @@ New Lean Coffee Time is initiated!\n
 DATE: ${data.discussion_day} | TIME: ${data.discussion_time} | PLACE: ${data.discussion_place}\n
 You are welcome to submit your _awesome | ridiculous | horrible_ topics.\n
 
-:bulb: */lc-topic* command or *@kavabot topic* mention - to submit new topic\n
-:bulb: */lc-vote* command or *@kavabot vote* mention - to make your voting\n
+:bulb: */lc-topic* command ~~or *@kavabot topic* mention~~ - to submit new topic\n
+:bulb: */lc-vote* command ~~or *@kavabot vote* mention~~ - to make your voting\n
 *golosuj! ...ili proigraisch!*\n
             `
     };
