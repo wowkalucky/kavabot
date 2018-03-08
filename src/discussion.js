@@ -1,3 +1,6 @@
+/** DISCUSSION entity related code
+*/
+
 const {WebClient} = require('@slack/client');
 
 const db = require('./storage');

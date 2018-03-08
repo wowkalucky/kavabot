@@ -1,3 +1,6 @@
+/** STATE persistence (Node Embedded Data Base)
+*/
+
 const NEDb = require('nedb');
 
 

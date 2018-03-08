@@ -1,3 +1,6 @@
+/** MAIN APP MODULE
+*/
+
 const express = require('express');
 const request = require('request');
 const bodyParser = require('body-parser');
@@ -13,6 +16,7 @@ const clientSecret = process.env.APP_CLIENT_SECRET;
 // Express web server initialization:
 const PORT=8822;
 const app = express();
+
 // middleware parsers:
 app.use(bodyParser.json());                        // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({extended: true}));  // to support URL-encoded bodies
@@ -25,6 +29,19 @@ app.listen(PORT, function () {
 // interactive commands endpoint:
 app.use('/intercom', slackMessages.expressMiddleware());
 
+// Ngrok test route:
+app.get('/', function(req, res) {
+    res.send('Ngrok is working! Path Hit: ' + req.url);
+});
+
+// Actions URLS:
+app.post(...lcInit);
+app.post(...lcFreeze);
+app.post(...lcClose);
+app.post(...lcTopic);
+app.post(...lcVote);
+
+// Events URI: TBD
 app.post('/events', (req, res) => {
     console.log('EVENTS: ', req.body);
     res.send(req.body.challenge);
@@ -34,11 +51,8 @@ app.post('/events', (req, res) => {
     // - vote
 });
 
-// This route handles GET requests to our root ngrok address and responds with the same
-// "Ngrok is working message" we used before
-app.get('/', function(req, res) {
-    res.send('Ngrok is working! Path Hit: ' + req.url);
-});
+
+// Wide distribution part (not for now...)
 
 // This route handles get request to a /oauth endpoint.
 // We'll use this endpoint for handling the logic of the Slack oAuth process behind our app.
@@ -69,10 +83,3 @@ app.get('/oauth', function(req, res) {
         })
     }
 });
-
-// Actions URLS:
-app.post(...lcInit);
-app.post(...lcFreeze);
-app.post(...lcClose);
-app.post(...lcTopic);
-app.post(...lcVote);

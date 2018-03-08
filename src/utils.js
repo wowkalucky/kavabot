@@ -1,3 +1,6 @@
+/** UTILITIES
+*/
+
 const {WebClient} = require('@slack/client');
 
 const web = new WebClient(process.env.WEB_API_TOKEN);

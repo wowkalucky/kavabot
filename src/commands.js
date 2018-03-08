@@ -1,11 +1,11 @@
-/** SLASH COMMANDS: ===================================================================================================
+/** SLASH COMMANDS
 */
+
 require('dotenv').config();
 const {WebClient} = require('@slack/client');
 
 const {newAgendaNotify} = require('./notifications');
 const {botOpts} = require('./options');
-const {getBotUsersPromise, getTargetChannelIdPromise} = require('./utils');
 const {
     initDiscussionMessage, closeDiscussionMessage, initDiscussionDialog, composeAgenda, closeDiscussion
 } = require('./discussion');

@@ -1,3 +1,6 @@
+/** INTERACTIVE ACTIONS (buttons, dialogs)
+*/
+
 const { createMessageAdapter } = require('@slack/interactive-messages');
 const { WebClient } = require('@slack/client');
 require('dotenv').config();

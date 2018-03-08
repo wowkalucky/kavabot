@@ -1,3 +1,6 @@
+/** INTERACTIVE ACTIONS (buttons, dialogs)
+*/
+
 const {WebClient} = require('@slack/client');
 
 const {getTargetChannelIdPromise} = require('./utils');
